@@ -665,6 +665,27 @@ nav.scrolled{background:rgba(6,9,18,0.97);backdrop-filter:blur(12px)}
   margin-bottom: 0.5rem;
   display: block;
 }
+
+/* ARTICLE CHAT */
+.article-chat{padding:1.5rem 2.5rem 2rem;border-top:1px solid var(--border)}
+.article-chat-title{font-family:var(--ff-ui);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--article-accent,var(--gold));margin-bottom:1rem;opacity:0.7}
+.chat-messages{max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;scroll-behavior:smooth}
+.chat-bubble{padding:0.7rem 1rem;border-radius:3px;font-family:var(--ff-body);font-size:0.95rem;line-height:1.6;max-width:92%}
+.chat-bubble.user{background:rgba(255,255,255,0.05);border:1px solid var(--border);align-self:flex-end;color:var(--text-hi)}
+.chat-bubble.assistant{background:rgba(var(--article-accent-rgb,232,184,75),0.07);border:1px solid rgba(var(--article-accent-rgb,232,184,75),0.18);align-self:flex-start;color:rgba(240,235,224,0.9)}
+.chat-bubble.assistant .chat-search-badge{font-family:var(--ff-ui);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;opacity:0.5;display:block;margin-bottom:0.3rem}
+.chat-input-row{display:flex;gap:0.5rem;align-items:flex-end}
+.chat-input{flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:3px;padding:0.6rem 0.9rem;font-family:var(--ff-body);font-size:0.95rem;color:var(--text-hi);resize:none;min-height:40px;max-height:100px;transition:border-color 0.2s;line-height:1.5}
+.chat-input:focus{outline:none;border-color:rgba(var(--article-accent-rgb,232,184,75),0.4)}
+.chat-input::placeholder{color:var(--text-lo)}
+.chat-btn{flex-shrink:0;width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:3px;font-size:1rem;color:var(--text-mid);cursor:pointer;transition:all 0.2s}
+.chat-btn:hover{background:rgba(255,255,255,0.1);color:var(--text-hi)}
+.chat-btn.send{background:var(--article-accent,var(--gold));color:var(--void);border-color:transparent}
+.chat-btn.send:hover{filter:brightness(1.1)}
+.chat-btn.recording{border-color:#f87171;color:#f87171;animation:chatRecPulse 1s ease-in-out infinite}
+@keyframes chatRecPulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.chat-typing{font-family:var(--ff-ui);font-size:0.7rem;letter-spacing:0.1em;color:var(--text-lo);padding:0.4rem 0;display:none}
+.chat-typing.visible{display:block}
 </style>
 </head>
 <body>
@@ -1583,6 +1604,16 @@ window.addEventListener('resize', drawConnectors);
     <div class="article-body" id="article-body">
       <!-- dynamically filled -->
     </div>
+    <div class="article-chat" id="article-chat">
+      <p class="article-chat-title">Ask the Stars</p>
+      <div class="chat-messages" id="chat-messages"></div>
+      <p class="chat-typing" id="chat-typing">✦ Searching the cosmos...</p>
+      <div class="chat-input-row">
+        <textarea class="chat-input" id="chat-input" placeholder="Ask anything about this civilisation..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMessage()}"></textarea>
+        <button class="chat-btn" id="chat-voice-btn" onclick="toggleChatVoice()" title="Dictate">🎤</button>
+        <button class="chat-btn send" onclick="sendChatMessage()" title="Send">↑</button>
+      </div>
+    </div>
     <div class="article-footer">
       <button class="article-quiz-btn" onclick="closeArticle();document.getElementById('quiz-section').scrollIntoView({behavior:'smooth'})">
         Take the Quiz →
@@ -1592,6 +1623,15 @@ window.addEventListener('resize', drawConnectors);
 </div>
 
 <script>
+// Chat state
+const chatState = {
+  messages: [],
+  currentCulture: null,
+  synth: window.speechSynthesis || null,
+  recognition: null,
+  isRecording: false,
+};
+
 /* ============================================================
    CULTURE DATA
 ============================================================ */
@@ -1825,12 +1865,22 @@ document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
 let currentVizAnim = null;
 
 function openArticle(id){
+  // Reset chat
+  chatState.messages = [];
+  chatState.currentCulture = id;
+  const chatMsgs = document.getElementById('chat-messages');
+  if (chatMsgs) chatMsgs.innerHTML = '';
+  const chatTyping = document.getElementById('chat-typing');
+  if (chatTyping) chatTyping.classList.remove('visible');
+  if (chatState.synth) chatState.synth.cancel();
+
   const c = CULTURES[id];
   if(!c) return;
 
   // Style the panel
   const panel = document.getElementById('article-panel');
   panel.style.setProperty('--article-accent', c.accent);
+  panel.style.setProperty('--article-accent-rgb', hexToRgbStr(c.accent));
 
   // Build HTML
   const factsHTML = c.facts.map(f=>`
@@ -1872,6 +1922,8 @@ function closeArticle(){
   document.getElementById('article-overlay').classList.remove('open');
   document.body.style.overflow = '';
   if(currentVizAnim){ cancelAnimationFrame(currentVizAnim); currentVizAnim=null; }
+  if (chatState.synth) chatState.synth.cancel();
+  if (chatState.recognition) { try { chatState.recognition.stop(); } catch(e){} }
 }
 
 // Close on Escape
@@ -2321,6 +2373,127 @@ function drawBabylon(ctx,W,H,t,acStr){
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape') closeArticle();
 });
+
+function hexToRgbStr(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderChatMessages() {
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
+  container.innerHTML = '';
+  chatState.messages.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'chat-bubble ' + m.role;
+    if (m.role === 'assistant' && m.usedSearch) {
+      div.innerHTML = '<span class="chat-search-badge">🔍 Web search used</span>' + escapeHtml(m.text);
+    } else {
+      div.textContent = m.text;
+    }
+    container.appendChild(div);
+  });
+  container.scrollTop = container.scrollHeight;
+}
+
+function speakChatResponse(text) {
+  if (!chatState.synth) return;
+  chatState.synth.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.rate = 0.92; utt.pitch = 1.0;
+  const voices = chatState.synth.getVoices();
+  const v = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('natural'))
+    || voices.find(v => v.lang === 'en-GB')
+    || voices.find(v => v.lang.startsWith('en'));
+  if (v) utt.voice = v;
+  chatState.synth.speak(utt);
+}
+
+function toggleChatVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn = document.getElementById('chat-voice-btn');
+  if (!SR) { alert('Voice input not supported in this browser.'); return; }
+  if (chatState.isRecording) {
+    chatState.recognition.stop();
+    chatState.isRecording = false;
+    btn.textContent = '🎤';
+    btn.classList.remove('recording');
+    return;
+  }
+  chatState.recognition = new SR();
+  chatState.recognition.lang = 'en-GB';
+  chatState.recognition.continuous = false;
+  chatState.recognition.interimResults = false;
+  chatState.recognition.onresult = (e) => {
+    document.getElementById('chat-input').value = e.results[0][0].transcript;
+    chatState.isRecording = false;
+    btn.textContent = '🎤';
+    btn.classList.remove('recording');
+  };
+  const resetBtn = () => { chatState.isRecording = false; btn.textContent = '🎤'; btn.classList.remove('recording'); };
+  chatState.recognition.onerror = resetBtn;
+  chatState.recognition.onend = resetBtn;
+  chatState.recognition.start();
+  chatState.isRecording = true;
+  btn.textContent = '⏹';
+  btn.classList.add('recording');
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  if (chatState.isRecording) toggleChatVoice();
+  input.value = '';
+  chatState.messages.push({role:'user', text});
+  renderChatMessages();
+  const typing = document.getElementById('chat-typing');
+  typing.classList.add('visible');
+
+  const c = CULTURES[chatState.currentCulture];
+  const articleText = c.paragraphs.join('\n\n');
+  const factsText = c.facts.map(f => f.n + ': ' + f.l).join(', ');
+  const systemPrompt = 'You are an enthusiastic educational guide for "How Cultures Read the Sky" — a site about ancient civilisations and astronomy. The user is reading about ' + c.label + '.\n\nAnswer questions about this civilisation and astronomy. When the question is covered by the article, answer from it directly. When the user wants to know more, use web search to find accurate additional details. Keep answers engaging and concise (2-4 sentences), appropriate for students aged 15-16.\n\nArticle content:\n' + articleText + '\n\nKey facts: ' + factsText + '\n\nDid you know: ' + c.didYouKnow + '\n\nFull knowledge base:\n' + QUIZ_CONTEXT;
+
+  const apiMessages = chatState.messages.map(m => ({role: m.role, content: m.text}));
+
+  try {
+    const res = await fetch('/api/claude', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: systemPrompt,
+        tools: [{type:'web_search_20250305', name:'web_search', max_uses:2}],
+        messages: apiMessages
+      })
+    });
+    const data = await res.json();
+    const content = data.content || [];
+    const usedSearch = content.some(b => b.type === 'server_tool_use');
+    // If web search was used, only show text blocks AFTER the last search (skip pre-search "let me search..." text)
+    const lastSearchIdx = content.reduce((idx, b, i) => b.type === 'server_tool_use' ? i : idx, -1);
+    const relevantBlocks = lastSearchIdx >= 0
+      ? content.slice(lastSearchIdx + 1).filter(b => b.type === 'text')
+      : content.filter(b => b.type === 'text');
+    const replyText = relevantBlocks.length ? relevantBlocks.map(b => b.text).join(' ').trim() : 'Sorry, I could not get an answer.';
+    chatState.messages.push({role:'assistant', text:replyText, usedSearch});
+    typing.classList.remove('visible');
+    renderChatMessages();
+    speakChatResponse(replyText);
+  } catch(e) {
+    typing.classList.remove('visible');
+    chatState.messages.push({role:'assistant', text:"Sorry, I couldn't connect to the AI. Please check your connection.", usedSearch:false});
+    renderChatMessages();
+  }
+}
 </script>
 
 <!-- ============================================================
