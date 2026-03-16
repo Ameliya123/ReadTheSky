@@ -1,0 +1,2985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Cultures Read the Sky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   ROOT & RESET
+============================================================ */
+:root {
+  --void:        #060912;
+  --deep:        #090f1e;
+  --mid:         #0d1530;
+  --surface:     #111d3c;
+  --elevated:    #162548;
+  --border:      rgba(255,255,255,0.07);
+  --gold:        #e8b84b;
+  --gold-dim:    #b8882b;
+  --gold-glow:   rgba(232,184,75,0.25);
+  --teal:        #4ecdc4;
+  --teal-glow:   rgba(78,205,196,0.18);
+  --text-hi:     #f0ebe0;
+  --text-mid:    #9a92b0;
+  --text-lo:     #4a4460;
+  --ff-head:     'Cinzel', serif;
+  --ff-body:     'Crimson Text', serif;
+  --ff-ui:       'Jost', sans-serif;
+  --ease-out:    cubic-bezier(0.16,1,0.3,1);
+  --ease-in-out: cubic-bezier(0.65,0,0.35,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:var(--void);
+  color:var(--text-hi);
+  font-family:var(--ff-body);
+  overflow-x:hidden;
+  line-height:1.7;
+}
+img{max-width:100%;display:block}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+
+/* ============================================================
+   STARFIELD CANVAS (fixed bg)
+============================================================ */
+#starfield{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;
+}
+
+/* ============================================================
+   SHARED UTILITIES
+============================================================ */
+.section-wrap{position:relative;z-index:1}
+.reveal{
+  opacity:0;transform:translateY(32px);
+  transition:opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+}
+.reveal.visible{opacity:1;transform:none}
+.reveal-delay-1{transition-delay:0.1s}
+.reveal-delay-2{transition-delay:0.22s}
+.reveal-delay-3{transition-delay:0.34s}
+.reveal-delay-4{transition-delay:0.46s}
+.reveal-delay-5{transition-delay:0.58s}
+.reveal-delay-6{transition-delay:0.70s}
+
+.eyebrow{
+  font-family:var(--ff-ui);font-weight:300;
+  font-size:0.75rem;letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--gold);opacity:0.8;
+}
+.section-title{
+  font-family:var(--ff-head);font-size:clamp(2rem,5vw,3.5rem);
+  font-weight:400;line-height:1.1;color:var(--text-hi);
+}
+.section-title em{
+  font-style:italic;color:var(--gold);
+}
+
+/* ============================================================
+   NAV
+============================================================ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:1.5rem 3rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(to bottom,rgba(6,9,18,0.95),transparent);
+  transition:background 0.4s;
+}
+nav.scrolled{background:rgba(6,9,18,0.97);backdrop-filter:blur(12px)}
+.nav-logo{
+  font-family:var(--ff-head);font-size:1rem;
+  color:var(--gold);letter-spacing:0.1em;
+}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{
+  font-family:var(--ff-ui);font-size:0.8rem;font-weight:300;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--text-mid);text-decoration:none;
+  transition:color 0.3s;
+}
+.nav-links a:hover{color:var(--gold)}
+
+/* ============================================================
+   HERO
+============================================================ */
+#hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:2rem;position:relative;z-index:1;
+}
+.hero-content{max-width:900px}
+.hero-eyebrow{
+  font-family:var(--ff-ui);font-weight:300;
+  font-size:0.75rem;letter-spacing:0.3em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:2rem;
+  opacity:0;animation:fadeUp 1s var(--ease-out) 0.3s forwards;
+}
+.hero-title{
+  font-family:var(--ff-head);
+  font-size:clamp(3rem,9vw,7rem);
+  font-weight:400;line-height:1;
+  color:var(--text-hi);
+  margin-bottom:1.5rem;
+  opacity:0;animation:fadeUp 1.1s var(--ease-out) 0.6s forwards;
+}
+.hero-title em{
+  display:block;
+  font-style:italic;
+  background:linear-gradient(135deg,var(--gold),#fff5c0,var(--gold-dim));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 40px rgba(232,184,75,0.4));
+}
+.hero-sub{
+  font-family:var(--ff-body);font-size:1.3rem;
+  color:var(--text-mid);font-style:italic;
+  margin-bottom:3rem;
+  opacity:0;animation:fadeUp 1.1s var(--ease-out) 0.9s forwards;
+}
+.hero-cta{
+  display:inline-flex;align-items:center;gap:0.75rem;
+  padding:0.9rem 2.5rem;
+  font-family:var(--ff-ui);font-size:0.85rem;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--void);background:var(--gold);
+  border-radius:2px;
+  transition:all 0.3s;
+  box-shadow:0 0 40px var(--gold-glow);
+  opacity:0;animation:fadeUp 1.1s var(--ease-out) 1.2s forwards;
+}
+.hero-cta:hover{
+  background:#fff5c0;transform:translateY(-2px);
+  box-shadow:0 4px 60px rgba(232,184,75,0.5);
+}
+.hero-cta::after{content:'↓';transition:transform 0.3s}
+.hero-cta:hover::after{transform:translateY(3px)}
+
+.scroll-indicator{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+  opacity:0;animation:fadeUp 1s var(--ease-out) 1.8s forwards;
+}
+.scroll-indicator span{
+  font-family:var(--ff-ui);font-size:0.65rem;
+  letter-spacing:0.2em;text-transform:uppercase;color:var(--text-lo);
+}
+.scroll-line{
+  width:1px;height:48px;
+  background:linear-gradient(to bottom,var(--gold),transparent);
+  animation:scrollPulse 2s ease-in-out infinite;
+}
+
+/* ============================================================
+   WORLD MAP SECTION
+============================================================ */
+#map-section{
+  padding:8rem 2rem 6rem;
+  position:relative;z-index:1;
+}
+.map-header{
+  text-align:center;max-width:600px;margin:0 auto 4rem;
+}
+.map-header .section-title{margin-bottom:1rem}
+.map-header p{
+  font-size:1.1rem;color:var(--text-mid);font-style:italic;
+}
+.map-container{
+  position:relative;
+  max-width:1100px;margin:0 auto;
+  background:linear-gradient(135deg,#060c1e,#0a1230,#060a18);
+  border:1px solid var(--border);
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 80px rgba(0,0,0,0.8), inset 0 0 80px rgba(78,205,196,0.03);
+}
+.map-container::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 60% 40%,rgba(78,205,196,0.04) 0%,transparent 60%),
+    radial-gradient(circle at 20% 70%,rgba(232,184,75,0.03) 0%,transparent 50%);
+  pointer-events:none;z-index:1;
+}
+#world-svg{
+  width:100%;height:auto;display:block;
+}
+.continent{
+  fill:rgba(255,255,255,0.055);
+  stroke:rgba(255,255,255,0.09);
+  stroke-width:0.5;
+  transition:fill 0.3s;
+}
+
+/* Culture markers */
+.culture-marker{cursor:pointer}
+.marker-ring{
+  fill:none;
+  stroke-width:1;
+  opacity:0.6;
+  animation:markerPulse 3s ease-in-out infinite;
+}
+.marker-dot{transition:r 0.3s, filter 0.3s}
+.culture-marker:hover .marker-dot{filter:brightness(1.5)}
+.culture-marker:hover .marker-ring{opacity:1}
+
+.marker-label{
+  font-family:'Cinzel',serif;
+  font-size:8px;
+  fill:rgba(240,235,224,0.85);
+  pointer-events:none;
+}
+
+.constellation-line{
+  stroke:rgba(232,184,75,0.2);
+  stroke-width:0.8;
+  stroke-dasharray:4 6;
+  fill:none;
+  stroke-linecap:round;
+}
+
+/* ============================================================
+   CULTURES GRID SECTION
+============================================================ */
+#cultures{
+  padding:6rem 2rem;
+  position:relative;z-index:1;
+  max-width:1200px;margin:0 auto;
+}
+.cultures-header{
+  text-align:center;margin-bottom:4rem;
+}
+.cultures-header p{
+  font-size:1.15rem;color:var(--text-mid);
+  font-style:italic;max-width:500px;margin:1rem auto 0;
+}
+
+.cultures-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:4px;
+  overflow:hidden;
+}
+
+.culture-card{
+  position:relative;
+  padding:2.5rem 2rem;
+  cursor:pointer;
+  overflow:hidden;
+  min-height:260px;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  transition:transform 0.4s var(--ease-out);
+  background:var(--deep);
+}
+.culture-card::before{
+  content:'';position:absolute;inset:0;
+  opacity:0;transition:opacity 0.4s;
+  background:radial-gradient(circle at 50% 80%, var(--card-glow,rgba(232,184,75,0.15)) 0%, transparent 70%);
+}
+.culture-card:hover::before{opacity:1}
+.culture-card:hover{transform:translateY(-2px)}
+
+/* Card bg patterns via SVG data URIs - unique per card */
+.card-pattern{
+  position:absolute;inset:0;opacity:0.04;
+  transition:opacity 0.4s;
+}
+.culture-card:hover .card-pattern{opacity:0.09}
+
+/* Card decoration line */
+.culture-card::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent,var(--card-accent,var(--gold)),transparent);
+  opacity:0;transition:opacity 0.4s;
+}
+.culture-card:hover::after{opacity:1}
+
+.card-icon{
+  position:absolute;top:2rem;right:2rem;
+  font-size:2rem;opacity:0.25;
+  transition:opacity 0.4s, transform 0.4s;
+}
+.culture-card:hover .card-icon{opacity:0.5;transform:scale(1.1) rotate(-5deg)}
+
+.card-region{
+  font-family:var(--ff-ui);font-size:0.65rem;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--card-accent,var(--teal));
+  margin-bottom:0.5rem;opacity:0.8;
+}
+.card-name{
+  font-family:var(--ff-head);font-size:1.5rem;
+  font-weight:500;color:var(--text-hi);
+  margin-bottom:0.4rem;
+  line-height:1.1;
+}
+.card-tagline{
+  font-family:var(--ff-body);font-style:italic;
+  font-size:0.9rem;color:var(--text-mid);
+  margin-bottom:1rem;
+  line-height:1.4;
+}
+.card-era{
+  font-family:var(--ff-ui);font-size:0.7rem;
+  letter-spacing:0.1em;color:var(--text-lo);
+}
+.card-explore{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  margin-top:1rem;
+  font-family:var(--ff-ui);font-size:0.7rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--card-accent,var(--gold));
+  opacity:0;transition:opacity 0.3s;
+}
+.culture-card:hover .card-explore{opacity:1}
+.card-explore::after{content:'→';transition:transform 0.3s}
+.culture-card:hover .card-explore::after{transform:translateX(4px)}
+
+/* ============================================================
+   ARTICLE OVERLAY
+============================================================ */
+#article-overlay{
+  position:fixed;inset:0;z-index:200;
+  display:flex;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.5s var(--ease-out);
+}
+#article-overlay.open{
+  opacity:1;pointer-events:all;
+}
+.article-backdrop{
+  position:absolute;inset:0;
+  background:rgba(6,9,18,0.75);
+  backdrop-filter:blur(8px);
+}
+.article-panel{
+  position:relative;z-index:1;
+  margin-left:auto;
+  width:min(680px,100%);height:100vh;
+  background:linear-gradient(135deg,#0b1428,#0d1832);
+  border-left:1px solid var(--border);
+  overflow-y:auto;
+  transform:translateX(60px);
+  transition:transform 0.6s var(--ease-out);
+  display:flex;flex-direction:column;
+}
+#article-overlay.open .article-panel{transform:none}
+
+.article-viz-wrap{
+  width:100%;height:200px;
+  position:relative;overflow:hidden;
+  flex-shrink:0;
+}
+.article-viz-canvas{
+  width:100%;height:100%;
+}
+.article-viz-overlay{
+  position:absolute;bottom:0;left:0;right:0;
+  height:80px;
+  background:linear-gradient(to bottom,transparent,#0d1832);
+}
+
+.article-body{padding:2.5rem 2.5rem 3rem;flex:1}
+.article-culture-label{
+  font-family:var(--ff-ui);font-size:0.65rem;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--article-accent,var(--gold));
+  margin-bottom:0.5rem;
+}
+.article-title{
+  font-family:var(--ff-head);font-size:2rem;
+  font-weight:500;line-height:1.1;
+  color:var(--text-hi);margin-bottom:0.5rem;
+}
+.article-subtitle{
+  font-family:var(--ff-body);font-style:italic;
+  font-size:1.05rem;color:var(--text-mid);
+  margin-bottom:2rem;
+  padding-bottom:2rem;
+  border-bottom:1px solid var(--border);
+}
+.article-text{
+  font-family:var(--ff-body);font-size:1.05rem;
+  color:rgba(240,235,224,0.85);line-height:1.8;
+  margin-bottom:1.5rem;
+}
+.article-text:first-of-type::first-letter{
+  font-size:3.2em;float:left;line-height:0.8;
+  margin-right:0.1em;margin-top:0.05em;
+  color:var(--article-accent,var(--gold));
+  font-family:var(--ff-head);
+}
+.fact-cards{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:0.75rem;margin:2rem 0;
+}
+.fact-card{
+  padding:1rem;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:3px;
+  border-left:2px solid var(--article-accent,var(--gold));
+}
+.fact-card-number{
+  font-family:var(--ff-head);
+  font-size:1.6rem;font-weight:600;
+  color:var(--article-accent,var(--gold));
+  display:block;line-height:1;margin-bottom:0.3rem;
+}
+.fact-card-label{
+  font-family:var(--ff-ui);font-size:0.72rem;
+  letter-spacing:0.08em;color:var(--text-mid);
+  text-transform:uppercase;
+}
+.did-you-know{
+  margin:2rem 0;padding:1.5rem;
+  background:rgba(232,184,75,0.05);
+  border:1px solid rgba(232,184,75,0.2);
+  border-radius:3px;
+  position:relative;
+}
+.did-you-know::before{
+  content:'Did You Know?';
+  position:absolute;top:-0.6rem;left:1rem;
+  padding:0 0.5rem;
+  background:#0d1832;
+  font-family:var(--ff-ui);font-size:0.65rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--gold);
+}
+.did-you-know p{
+  font-family:var(--ff-body);font-style:italic;
+  font-size:0.95rem;color:rgba(240,235,224,0.75);
+  line-height:1.7;
+}
+
+.article-footer{
+  padding:2rem 2.5rem;
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.article-quiz-btn{
+  display:inline-flex;align-items:center;gap:0.6rem;
+  padding:0.8rem 1.8rem;
+  font-family:var(--ff-ui);font-size:0.8rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--void);background:var(--gold);
+  border-radius:2px;
+  box-shadow:0 0 30px var(--gold-glow);
+  transition:all 0.3s;
+}
+.article-quiz-btn:hover{
+  background:#fff5c0;transform:translateY(-1px);
+  box-shadow:0 4px 40px rgba(232,184,75,0.5);
+}
+.article-close{
+  position:fixed;top:1.5rem;right:1.5rem;z-index:201;
+  width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(6,9,18,0.8);
+  border:1px solid var(--border);border-radius:50%;
+  font-size:1.2rem;color:var(--text-mid);
+  transition:all 0.3s;
+  opacity:0;pointer-events:none;
+}
+#article-overlay.open .article-close{opacity:1;pointer-events:all}
+.article-close:hover{color:var(--text-hi);border-color:var(--gold)}
+
+/* ============================================================
+   QUIZ INTRO SECTION
+============================================================ */
+#quiz-section{
+  padding:8rem 2rem;
+  position:relative;z-index:1;
+  text-align:center;
+  border-top:1px solid var(--border);
+}
+.quiz-inner{max-width:700px;margin:0 auto}
+.quiz-stars-row{
+  display:flex;justify-content:center;gap:1.5rem;
+  margin-bottom:3rem;
+}
+.quiz-star-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--gold);
+  animation:quizStarPulse 2s ease-in-out infinite;
+}
+.quiz-star-dot:nth-child(2){animation-delay:0.3s;background:var(--teal)}
+.quiz-star-dot:nth-child(3){animation-delay:0.6s;background:#a78bfa}
+.quiz-star-dot:nth-child(4){animation-delay:0.9s;background:#f87171}
+.quiz-star-dot:nth-child(5){animation-delay:1.2s;background:#4ade80}
+.quiz-star-dot:nth-child(6){animation-delay:1.5s;background:#60a5fa}
+
+.quiz-section-title{
+  font-family:var(--ff-head);
+  font-size:clamp(2rem,4vw,3rem);
+  font-weight:400;color:var(--text-hi);
+  margin-bottom:1rem;line-height:1.1;
+}
+.quiz-section-title em{color:var(--gold);font-style:italic}
+.quiz-section-sub{
+  font-family:var(--ff-body);font-style:italic;
+  font-size:1.1rem;color:var(--text-mid);
+  margin-bottom:3rem;line-height:1.6;
+}
+.quiz-start-btn{
+  display:inline-flex;align-items:center;gap:0.8rem;
+  padding:1.1rem 3rem;
+  font-family:var(--ff-ui);font-size:0.9rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--void);
+  background:linear-gradient(135deg,var(--gold),#c49428);
+  border-radius:2px;
+  box-shadow:0 0 60px rgba(232,184,75,0.35), 0 0 120px rgba(232,184,75,0.15);
+  transition:all 0.4s;
+  position:relative;overflow:hidden;
+}
+.quiz-start-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.2),transparent);
+  opacity:0;transition:opacity 0.3s;
+}
+.quiz-start-btn:hover::before{opacity:1}
+.quiz-start-btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 60px rgba(232,184,75,0.5),0 0 120px rgba(232,184,75,0.2);
+}
+.quiz-stats{
+  display:flex;gap:3rem;justify-content:center;
+  margin-top:3rem;
+  padding-top:3rem;
+  border-top:1px solid var(--border);
+}
+.quiz-stat{text-align:center}
+.quiz-stat-n{
+  font-family:var(--ff-head);font-size:2.5rem;
+  color:var(--gold);display:block;line-height:1;
+}
+.quiz-stat-l{
+  font-family:var(--ff-ui);font-size:0.7rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--text-lo);margin-top:0.3rem;
+}
+
+/* ============================================================
+   KEYFRAMES
+============================================================ */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:none}
+}
+@keyframes scrollPulse{
+  0%,100%{opacity:1;transform:scaleY(1)}
+  50%{opacity:0.4;transform:scaleY(0.6)}
+}
+@keyframes markerPulse{
+  0%,100%{r:12;opacity:0.4}
+  50%{r:18;opacity:0.15}
+}
+@keyframes quizStarPulse{
+  0%,100%{transform:scale(1);opacity:0.6}
+  50%{transform:scale(1.6);opacity:1}
+}
+@keyframes shimmer{
+  0%{background-position:0% 50%}
+  100%{background-position:200% 50%}
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media(max-width:900px){
+  nav{padding:1.2rem 1.5rem}
+  .nav-links{display:none}
+  .cultures-grid{grid-template-columns:repeat(2,1fr)}
+  .fact-cards{grid-template-columns:1fr}
+  .article-panel{width:100%}
+}
+@media(max-width:600px){
+  .cultures-grid{grid-template-columns:1fr}
+  .quiz-stats{gap:1.5rem}
+  .hero-title{font-size:clamp(2.5rem,10vw,5rem)}
+}
+
+/* ============================================================
+   QUIZ MULTIPLE CHOICE OPTIONS
+============================================================ */
+#q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.q-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Crimson Text', serif;
+  font-size: 1rem;
+  color: rgba(240,235,224,0.85);
+  transition: all 0.2s;
+  width: 100%;
+}
+.q-option:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(232,184,75,0.3);
+}
+.q-option.selected {
+  background: rgba(232,184,75,0.1);
+  border-color: rgba(232,184,75,0.6);
+  color: #f0ebe0;
+}
+.q-option-letter {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: #e8b84b;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  min-width: 1.2rem;
+}
+.q-option.selected .q-option-letter {
+  color: #e8b84b;
+}
+#q-free-label {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(154,146,176,0.6);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+</style>
+</head>
+<body>
+
+<!-- STARFIELD CANVAS -->
+<canvas id="starfield"></canvas>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <div class="nav-logo">✦ How Cultures Read the Sky</div>
+  <ul class="nav-links">
+    <li><a href="#map-section">The Map</a></li>
+    <li><a href="#cultures">Civilisations</a></li>
+    <li><a href="#quiz-section">Take the Quiz</a></li>
+    <li><a href="#leaderboard-section">Leaderboard</a></li>
+  </ul>
+</nav>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section id="hero" class="section-wrap">
+  <div class="hero-content">
+    <p class="hero-eyebrow">An Educational Journey Across Ancient Civilisations</p>
+    <h1 class="hero-title">
+      How Cultures<br>
+      <em>Read the Sky</em>
+    </h1>
+    <p class="hero-sub">Six civilisations. Ten thousand years. One shared obsession with the stars.</p>
+    <button class="hero-cta" onclick="document.getElementById('map-section').scrollIntoView({behavior:'smooth'})">
+      Begin the Journey
+    </button>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     WORLD MAP — Self-contained SVG (no external deps)
+============================================================ -->
+<style>
+.map-wrap{
+  max-width:1100px;margin:0 auto;padding:0 2rem;
+}
+.map-svg-container{
+  position:relative;
+  background:linear-gradient(135deg,#040810,#060d1f,#04080f);
+  border:1px solid var(--border);
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 80px rgba(0,0,0,0.9), inset 0 0 60px rgba(78,205,196,0.02);
+}
+.map-svg-container::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:
+    radial-gradient(ellipse 60% 40% at 70% 35%, rgba(78,205,196,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 50% at 20% 65%, rgba(167,139,250,0.03) 0%, transparent 60%);
+}
+#map-svg{ width:100%;height:auto;display:block; }
+
+/* Continent land */
+.land{
+  fill:rgba(255,255,255,0.09);
+  stroke:none;
+}
+/* Grid lines */
+.graticule{
+  fill:none;stroke:rgba(255,255,255,0.04);stroke-width:0.4;
+}
+/* Constellation connector lines */
+.conn-line{
+  fill:none;stroke:rgba(232,184,75,0.22);
+  stroke-width:0.9;stroke-dasharray:5 8;stroke-linecap:round;
+}
+
+/* Markers */
+.mpin{ cursor:pointer; }
+.mpin .ring1{
+  fill:none;stroke-width:1.2;
+  animation:mapRing1 3s ease-in-out infinite;
+}
+.mpin .ring2{
+  fill:none;stroke-width:0.7;
+  animation:mapRing2 3s ease-in-out infinite;
+}
+.mpin .dot{ transition:r 0.3s; }
+.mpin:hover .dot{ r:6; }
+.mpin .lbl-bg{
+  fill:rgba(6,9,18,0.72);
+  rx:3;
+}
+.mpin .lbl-name{
+  font-family:'Cinzel',serif;
+  font-size:8px;font-weight:500;
+  pointer-events:none;
+}
+.mpin .lbl-sub{
+  font-family:'Jost',sans-serif;
+  font-size:5.8px;font-weight:300;
+  pointer-events:none;fill:rgba(255,255,255,0.5);
+}
+
+/* Tooltip */
+.map-card{
+  position:absolute;z-index:5;
+  width:152px;
+  padding:0.55rem 0.7rem 0.5rem;
+  background:rgba(4,8,20,0.52);
+  border:1px solid color-mix(in srgb,var(--mc-color) 38%,transparent);
+  border-radius:4px;
+  backdrop-filter:blur(14px);
+  cursor:pointer;
+  transition:background 0.25s, box-shadow 0.25s;
+  pointer-events:all;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+.map-card:hover{
+  background:rgba(6,12,30,0.75);
+  box-shadow:0 6px 28px rgba(0,0,0,0.6), 0 0 0 1px color-mix(in srgb,var(--mc-color) 45%,transparent);
+}
+.mc-era{
+  font-family:'Jost',sans-serif;
+  font-size:0.55rem;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--mc-color);opacity:0.75;
+  margin-bottom:0.18rem;
+}
+.mc-name{
+  font-family:'Cinzel',serif;
+  font-size:0.82rem;font-weight:500;
+  color:var(--text-hi);
+  margin-bottom:0.28rem;line-height:1.1;
+}
+.mc-desc{
+  font-family:'Crimson Text',serif;font-style:italic;
+  font-size:0.72rem;color:rgba(154,146,176,0.85);
+  line-height:1.3;margin-bottom:0.38rem;
+}
+.mc-cta{
+  font-family:'Jost',sans-serif;
+  font-size:0.55rem;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--mc-color);opacity:0.6;
+  transition:opacity 0.2s;
+}
+.map-card:hover .mc-cta{opacity:1}
+#map-tooltip{
+  position:absolute;z-index:10;
+  background:rgba(9,14,32,0.97);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:1.1rem 1.3rem 0.9rem;
+  pointer-events:none;
+  opacity:0;
+  transform:translateY(6px);
+  transition:opacity 0.2s ease, transform 0.2s ease;
+  max-width:240px;
+  backdrop-filter:blur(16px);
+  box-shadow:0 12px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05);
+}
+#map-tooltip.visible{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:none; /* keep none — click goes to pin */
+}
+.tt-region{
+  font-family:'Jost',sans-serif;font-size:0.6rem;
+  letter-spacing:0.18em;text-transform:uppercase;
+  margin-bottom:0.25rem;opacity:0.85;
+}
+.tt-name{
+  font-family:'Cinzel',serif;font-size:1rem;
+  color:var(--text-hi);margin-bottom:0.3rem;
+}
+.tt-desc{
+  font-family:'Crimson Text',serif;font-style:italic;
+  font-size:0.82rem;color:var(--text-mid);
+  margin-bottom:0.75rem;line-height:1.4;
+}
+.tt-click-hint{
+  font-family:'Jost',sans-serif;font-size:0.6rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  opacity:0.4;margin-top:0.5rem;
+  display:block;
+}
+
+.map-hint{
+  text-align:center;
+  font-family:var(--ff-ui);font-size:0.68rem;
+  letter-spacing:0.14em;color:var(--text-lo);
+  margin-top:0.9rem;text-transform:uppercase;
+}
+
+@keyframes mapRing1{
+  0%,100%{r:12;opacity:0.45}
+  50%{r:18;opacity:0.12}
+}
+@keyframes mapRing2{
+  0%,100%{r:20;opacity:0.18}
+  50%{r:28;opacity:0.05}
+}
+</style>
+
+<section id="map-section" class="section-wrap">
+  <div class="map-header">
+    <p class="eyebrow reveal">Across Six Continents</p>
+    <h2 class="section-title reveal reveal-delay-1">Six Places.<br><em>One Sky.</em></h2>
+    <p class="reveal reveal-delay-2">Long before modern science, every civilisation looked up and found meaning — in the same stars, from vastly different places.</p>
+  </div>
+
+  <div class="map-wrap reveal reveal-delay-2">
+    <div class="map-svg-container" id="map-svg-container">
+
+      <!-- Connector lines overlay -->
+      <svg id="connector-svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4" xmlns="http://www.w3.org/2000/svg">
+        <line id="conn-polynesia" x1="0" y1="0" x2="0" y2="0" stroke="#2dd4bf" stroke-width="1" stroke-opacity="0.35" stroke-dasharray="3 5"/>
+        <line id="conn-maya" x1="0" y1="0" x2="0" y2="0" stroke="#4ade80" stroke-width="1" stroke-opacity="0.35" stroke-dasharray="3 5"/>
+        <line id="conn-babylon" x1="0" y1="0" x2="0" y2="0" stroke="#a78bfa" stroke-width="1" stroke-opacity="0.35" stroke-dasharray="3 5"/>
+        <line id="conn-arab" x1="0" y1="0" x2="0" y2="0" stroke="#60a5fa" stroke-width="1" stroke-opacity="0.35" stroke-dasharray="3 5"/>
+        <line id="conn-egypt" x1="0" y1="0" x2="0" y2="0" stroke="#fbbf24" stroke-width="1" stroke-opacity="0.35" stroke-dasharray="3 5"/>
+        <line id="conn-india" x1="0" y1="0" x2="0" y2="0" stroke="#f87171" stroke-width="1" stroke-opacity="0.35" stroke-dasharray="3 5"/>
+      </svg>
+
+      <div class="map-card" id="mc-polynesia"
+           data-cx="69" data-cy="278"
+           style="--mc-color:#2dd4bf;left:8%;top:65%"
+           onclick="mapPinClick(event,'polynesia')">
+        <div class="mc-era">Pacific · 1000–1400 CE</div>
+        <div class="mc-name">Polynesia</div>
+        <div class="mc-desc">Crossed 10 million sq miles of ocean guided only by stars.</div>
+        <div class="mc-cta">Explore →</div>
+      </div>
+      <div class="map-card" id="mc-maya"
+           data-cx="251" data-cy="210"
+           style="--mc-color:#4ade80;left:1%;top:22%;width:170px"
+           onclick="mapPinClick(event,'maya')">
+        <div class="mc-era">C. America · 250–900 CE</div>
+        <div class="mc-name">Maya</div>
+        <div class="mc-desc">Venus was their god of war, tracked to within 2 hours.</div>
+        <div class="mc-cta">Explore →</div>
+      </div>
+      <div class="map-card" id="mc-babylon"
+           data-cx="623" data-cy="157"
+           style="--mc-color:#a78bfa;left:35%;top:12%;width:175px"
+           onclick="mapPinClick(event,'babylon')">
+        <div class="mc-era">Mesopotamia · 3000 BCE</div>
+        <div class="mc-name">Babylon</div>
+        <div class="mc-desc">Invented the zodiac, the 60-min hour, predicted eclipses.</div>
+        <div class="mc-cta">Explore →</div>
+      </div>
+      <div class="map-card" id="mc-arab"
+           data-cx="623" data-cy="137"
+           style="--mc-color:#60a5fa;left:69%;top:2%;width:200px"
+           onclick="mapPinClick(event,'arab')">
+        <div class="mc-era">Baghdad · 8–13th Century CE</div>
+        <div class="mc-name">Arab Astronomy</div>
+        <div class="mc-desc">Named the stars we still use today.</div>
+        <div class="mc-cta">Explore →</div>
+      </div>
+      <div class="map-card" id="mc-egypt"
+           data-cx="586" data-cy="175"
+           style="--mc-color:#fbbf24;left:49%;top:55%"
+           onclick="mapPinClick(event,'egypt')">
+        <div class="mc-era">Nile Valley · 3000 BCE</div>
+        <div class="mc-name">Egypt</div>
+        <div class="mc-desc">Pyramids align to Orion's belt. Sirius heralded the Nile flood.</div>
+        <div class="mc-cta">Explore →</div>
+      </div>
+      <div class="map-card" id="mc-india"
+           data-cx="719" data-cy="192"
+           style="--mc-color:#f87171;right:1%;top:45%"
+           onclick="mapPinClick(event,'india')">
+        <div class="mc-era">Asia · 1500 BCE–600 CE</div>
+        <div class="mc-name">India & China</div>
+        <div class="mc-desc">Aryabhata: Earth's rotation to 0.009 seconds accuracy.</div>
+        <div class="mc-cta">Explore →</div>
+      </div>
+
+      <!--
+        SVG world map — equirectangular projection
+        Continent paths derived from Natural Earth simplified data
+        viewBox: 0 0 1000 500  →  lon -180..180 = 0..1000,  lat 90..-90 = 0..500
+        lon→x: (lon+180)/360*1000
+        lat→y: (90-lat)/180*500
+      -->
+      <svg id="map-svg" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="mpin-glow">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <linearGradient id="ocean-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#060c1e"/>
+            <stop offset="100%" stop-color="#040810"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Ocean background -->
+        <rect width="1000" height="500" fill="#050b1a"/>
+
+        <!-- Graticule: solid hairlines -->
+        <g fill="none" stroke-linecap="square">
+          <line x1="0" y1="83"  x2="1000" y2="83"  stroke="rgba(255,255,255,0.06)" stroke-width="0.4"/>
+          <line x1="0" y1="167" x2="1000" y2="167" stroke="rgba(255,255,255,0.06)" stroke-width="0.4"/>
+          <line x1="0" y1="333" x2="1000" y2="333" stroke="rgba(255,255,255,0.06)" stroke-width="0.4"/>
+          <line x1="0" y1="417" x2="1000" y2="417" stroke="rgba(255,255,255,0.06)" stroke-width="0.4"/>
+          <line x1="167" y1="0" x2="167" y2="500"  stroke="rgba(255,255,255,0.04)" stroke-width="0.4"/>
+          <line x1="333" y1="0" x2="333" y2="500"  stroke="rgba(255,255,255,0.04)" stroke-width="0.4"/>
+          <line x1="500" y1="0" x2="500" y2="500"  stroke="rgba(255,255,255,0.05)" stroke-width="0.4"/>
+          <line x1="667" y1="0" x2="667" y2="500"  stroke="rgba(255,255,255,0.04)" stroke-width="0.4"/>
+          <line x1="833" y1="0" x2="833" y2="500"  stroke="rgba(255,255,255,0.04)" stroke-width="0.4"/>
+        </g>
+        <!-- Equator — gold tint -->
+        <line x1="0" y1="250" x2="1000" y2="250" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+
+        <g class="land">
+  <path d="M334.5,472.3 L333.7,473.7 L332.9,475.0 L327.1,474.6 L320.9,474.8 L317.4,473.9 L317.4,473.7 L315.9,472.9 L322.1,473.0 L328.1,473.3 L330.2,472.2 L331.6,471.2 L334.5,472.3 Z"/>
+  <path d="M57.8,470.8 L52.4,471.2 L48.8,470.2 L47.2,469.2 L47.0,469.1 L45.2,468.3 L46.9,467.3 L52.1,467.7 L54.9,468.6 L57.0,469.6 L57.8,470.8 Z"/>
+  <path d="M374.6,466.8 L378.0,468.0 L379.2,469.7 L379.5,470.9 L379.6,472.3 L375.3,473.2 L370.8,473.9 L365.6,474.5 L359.8,475.1 L353.2,474.9 L349.5,474.0 L350.0,472.8 L356.0,472.1 L358.4,471.1 L360.1,470.0 L361.4,468.9 L363.0,467.9 L364.8,466.8 L366.2,466.8 L370.4,466.2 L374.6,466.8 Z"/>
+  <path d="M163.3,454.2 L166.9,454.6 L170.2,454.1 L168.6,455.1 L166.0,455.8 L162.2,455.6 L159.4,454.6 L160.0,453.7 L163.3,454.2 Z"/>
+  <path d="M151.2,454.1 L155.5,455.2 L153.8,455.1 L150.2,454.8 L146.4,454.1 L148.5,453.5 L151.2,454.1 Z"/>
+  <path d="M225.1,449.8 L228.1,450.2 L231.1,449.9 L232.8,451.4 L230.6,451.2 L227.2,451.3 L223.8,451.2 L220.0,451.4 L217.2,450.8 L215.8,449.7 L217.5,449.2 L221.0,449.6 L225.1,449.8 Z"/>
+  <path d="M309.9,447.1 L310.2,448.4 L309.7,449.4 L308.9,450.5 L305.7,450.9 L302.6,451.4 L298.9,451.3 L300.3,450.3 L297.0,450.6 L293.9,451.0 L291.8,450.2 L291.6,449.1 L294.7,448.0 L296.6,447.6 L299.8,447.8 L300.6,446.3 L300.8,445.3 L300.7,443.1 L302.3,441.8 L304.9,441.3 L306.3,442.4 L307.0,443.4 L308.2,444.7 L309.1,445.8 L309.9,447.1 Z"/>
+  <path d="M0.0,485.3L0.2,485.3L2.6,483.7L7.6,484.6L7.9,484.5L8.7,484.3L9.7,484.0L10.5,483.7L10.9,483.6L11.3,483.6L11.6,483.7L15.6,484.8L19.1,483.7L19.8,483.5L27.9,483.0L30.6,483.7L31.9,484.0L36.1,484.9L43.9,485.6L50.2,486.5L60.9,487.1L68.9,486.4L80.7,486.9L87.4,487.8L94.8,487.0L102.5,486.2L103.1,484.9L92.1,484.8L83.2,484.2L80.8,483.1L73.4,482.5L73.9,481.2L74.9,480.1L75.9,479.0L75.4,477.9L70.8,477.1L68.6,476.2L64.3,475.3L71.1,475.4L77.5,475.0L81.5,475.9L86.5,475.1L91.1,474.1L93.3,473.2L92.3,472.0L88.7,471.3L84.6,470.4L78.9,470.3L73.9,469.9L68.5,469.6L66.7,468.6L63.1,467.7L61.0,466.7L60.1,463.6L61.5,463.9L64.0,464.7L68.5,464.5L72.9,464.1L75.2,465.3L79.6,465.0L83.3,464.4L86.8,463.6L90.0,462.7L94.2,462.4L94.0,461.4L93.1,460.4L93.9,459.4L97.5,458.9L99.1,459.8L103.4,459.3L106.6,458.6L110.5,458.5L114.3,458.2L118.0,457.6L121.0,457.0L124.4,456.4L126.6,456.6L128.5,456.8L132.6,456.4L136.3,456.9L140.1,456.8L143.8,456.5L147.5,456.7L151.7,457.0L155.5,456.9L159.6,456.9L163.7,457.0L167.5,456.9L170.3,456.1L173.7,455.6L177.2,456.2L180.5,455.7L183.5,454.8L185.3,455.6L186.3,456.6L188.1,457.5L190.9,456.7L194.3,457.8L198.0,458.1L201.2,458.8L205.1,458.7L208.7,458.2L212.9,458.3L216.6,458.7L220.4,459.2L221.9,458.0L220.1,457.1L218.7,456.1L215.2,455.9L213.6,454.8L213.0,453.8L212.0,451.7L214.1,452.1L217.8,452.3L221.4,452.1L224.6,452.5L227.5,453.3L228.6,454.3L232.4,454.5L236.0,454.1L239.8,453.6L243.2,453.2L246.1,453.9L249.8,453.7L252.1,451.6L254.4,452.8L257.6,453.3L261.1,453.0L263.4,454.1L267.0,454.2L270.4,454.5L273.7,455.1L275.9,454.1L277.0,453.1L279.7,454.2L283.5,453.9L286.4,454.5L288.3,455.5L292.0,455.2L294.9,454.6L297.7,453.9L301.1,453.5L305.0,453.2L308.5,452.8L311.2,452.2L312.9,451.3L313.5,450.1L313.2,449.0L312.3,447.9L311.3,446.8L310.5,445.7L309.8,444.7L309.6,443.7L309.9,442.6L311.2,441.5L312.3,440.4L312.7,439.3L312.2,438.1L311.8,437.0L313.2,435.8L314.7,435.0L316.5,433.9L318.4,433.0L320.6,432.2L321.7,431.0L323.3,430.3L325.0,429.6L327.7,429.4L329.4,428.5L331.4,428.0L333.6,427.7L335.7,427.0L337.2,426.1L339.4,425.8L341.0,426.5L340.0,427.4L337.2,428.2L336.0,428.8L333.9,428.4L331.6,428.6L329.7,429.3L327.7,430.0L326.4,430.8L326.0,431.9L326.1,432.9L327.4,433.9L325.5,434.5L322.9,434.7L321.4,435.7L319.8,436.5L318.0,437.7L317.6,438.8L318.6,439.9L320.0,440.8L322.3,441.4L324.5,442.3L325.6,443.4L326.2,444.4L327.0,445.5L328.3,446.4L329.1,447.5L329.5,450.0L330.3,451.1L330.5,452.2L331.4,453.2L331.0,454.7L329.5,455.9L327.9,456.8L324.2,457.2L322.9,458.1L321.2,459.1L317.1,460.1L313.4,460.5L309.9,461.1L306.1,461.7L303.9,462.9L299.4,463.0L294.5,462.9L290.1,463.1L285.4,463.1L286.3,464.2L290.6,464.7L293.7,465.4L295.4,466.4L292.3,467.3L287.5,467.0L283.5,467.7L283.4,468.9L283.3,470.0L286.5,470.9L287.1,471.9L290.7,472.9L296.5,473.4L301.5,474.1L305.5,475.0L310.6,475.9L317.5,476.3L324.3,477.1L329.0,477.9L334.2,478.8L336.9,480.1L338.3,481.2L341.6,480.2L346.2,479.4L351.1,478.5L356.8,477.8L361.8,477.0L368.7,477.0L375.5,477.4L381.1,478.0L382.9,476.8L386.7,476.0L393.8,475.9L399.3,475.3L404.5,474.7L410.3,474.4L416.4,473.9L420.7,473.2L418.7,472.2L417.5,471.2L417.5,470.2L412.2,470.3L406.4,470.7L401.0,470.7L400.2,469.7L400.6,467.6L401.9,467.0L405.8,466.4L410.5,465.7L413.9,464.9L417.3,464.1L419.8,463.0L423.6,462.5L427.3,462.1L429.2,461.9L433.5,461.8L437.6,461.4L441.0,460.9L444.4,460.2L447.5,459.6L451.3,458.7L453.8,457.8L456.4,456.9L457.2,455.9L454.3,455.2L455.2,454.1L457.1,453.2L460.0,452.6L463.0,452.0L465.9,451.1L468.0,450.0L469.4,448.7L471.4,448.0L474.7,448.1L476.1,449.0L479.4,449.2L479.5,448.1L480.9,447.0L483.9,447.3L484.6,448.3L487.9,448.5L491.5,448.0L495.0,447.7L498.2,447.8L499.4,449.0L502.4,448.1L505.2,447.6L508.4,447.2L511.5,446.8L514.3,446.2L517.4,445.7L519.8,445.1L521.5,444.1L523.6,444.9L526.5,444.5L528.5,445.8L530.0,446.8L533.2,446.2L534.5,445.1L537.3,444.4L540.9,444.5L542.0,445.6L544.3,444.5L547.3,444.2L550.6,444.1L553.5,444.1L556.6,444.5L559.6,444.6L560.9,445.6L562.7,446.4L565.7,445.9L569.0,445.8L572.2,445.8L575.3,445.7L578.0,445.3L581.0,445.0L583.4,444.3L586.0,443.8L588.9,443.5L591.0,442.7L592.5,441.2L594.1,440.3L597.0,440.7L598.1,441.7L600.4,442.4L603.3,442.1L605.3,443.1L607.4,443.8L610.2,443.2L611.2,442.0L613.7,441.5L616.6,440.6L619.3,440.2L622.5,439.6L624.7,439.0L627.0,438.4L629.2,437.8L631.8,438.1L634.3,437.1L636.1,436.4L638.7,436.4L641.0,435.8L641.5,434.8L643.9,434.0L646.1,433.5L648.9,433.0L651.5,432.8L653.9,433.0L656.5,433.3L658.8,434.0L659.0,435.2L661.5,436.1L663.2,436.9L666.5,437.2L668.3,438.0L670.6,438.8L673.3,438.9L675.5,438.4L677.9,437.2L680.5,437.8L683.3,438.2L685.9,438.5L688.6,438.7L691.4,438.7L693.6,441.6L693.5,442.3L693.2,443.6L690.5,444.3L688.4,445.3L688.7,446.4L691.8,446.3L691.5,447.4L690.1,448.5L688.7,449.6L690.9,450.5L694.1,450.7L697.3,450.2L698.8,449.2L699.7,448.1L701.3,447.3L703.0,446.4L703.7,445.5L705.2,444.1L706.9,443.8L710.1,443.7L712.8,443.4L715.7,443.0L717.0,441.9L717.9,440.8L719.8,439.8L722.5,439.1L724.8,438.5L726.3,437.6L727.9,437.1L729.9,436.7L732.7,437.0L735.2,436.7L737.9,436.4L741.0,436.5L743.0,435.8L744.4,433.9L745.4,434.7L746.7,436.0L749.1,436.5L751.7,436.7L754.4,436.4L757.2,436.6L759.9,436.7L761.6,436.4L763.9,436.6L766.1,437.2L768.6,436.8L771.6,436.8L774.1,436.4L777.0,436.8L778.8,435.9L780.3,435.0L782.2,434.2L785.6,432.1L787.4,432.5L789.6,433.3L791.4,434.2L794.9,435.9L797.7,436.0L800.2,436.0L803.2,435.7L806.2,435.3L808.5,434.5L810.4,433.7L813.5,433.6L815.6,433.0L817.7,433.5L819.2,434.4L821.1,435.3L824.2,435.2L826.1,435.9L829.4,436.6L832.9,436.9L835.7,436.6L837.9,435.8L839.8,434.9L842.3,434.7L844.8,435.1L847.7,435.3L850.3,434.9L852.8,434.9L855.2,435.2L857.8,435.4L860.3,435.0L863.3,434.5L866.1,434.4L869.3,434.4L871.8,434.1L874.3,433.9L875.1,432.6L875.2,431.4L876.9,432.2L877.4,433.4L878.3,434.6L879.5,435.5L881.8,436.0L885.0,435.8L888.6,435.8L891.1,435.6L894.8,435.6L897.4,435.5L901.0,435.7L904.1,435.9L906.1,436.7L905.6,437.8L907.3,438.6L910.3,439.2L913.4,440.0L917.0,440.4L920.8,440.9L923.6,441.3L926.8,441.4L928.6,440.4L931.0,441.2L933.1,442.1L935.6,442.7L939.0,443.0L942.2,443.3L943.5,444.4L946.7,445.1L948.8,446.1L951.9,446.5L955.1,446.4L958.1,446.6L961.4,446.5L964.7,446.8L967.8,447.1L970.7,447.8L973.6,448.3L975.6,449.2L975.2,450.2L973.8,451.2L972.5,452.5L971.5,453.5L970.2,454.6L966.6,455.0L965.0,456.0L961.4,456.6L960.1,457.7L958.2,458.7L956.2,459.6L955.1,460.8L954.4,461.8L954.1,463.0L954.1,464.1L955.7,465.2L956.3,466.2L957.6,467.2L962.8,467.6L963.9,468.8L958.9,469.2L954.6,469.8L949.3,469.9L947.0,471.5L946.5,472.8L945.3,473.8L943.9,474.9L947.6,475.8L949.0,476.9L951.4,477.9L954.7,478.9L958.6,479.7L962.8,480.6L969.1,481.5L970.6,482.8L978.6,483.4L979.1,483.7L981.2,484.5L988.8,483.8L995.2,484.6 Z M0.0,485.3 Z"/>
+  <path d="M311.8,399.6 L315.4,401.3 L319.3,401.9 L318.1,403.3 L315.4,403.5 L314.0,402.5 L313.1,403.6 L310.7,404.5 L307.7,404.2 L305.7,403.3 L302.8,402.9 L299.3,401.4 L296.4,399.9 L292.6,396.8 L294.9,397.4 L298.8,399.2 L302.5,400.2 L303.9,398.9 L304.8,397.0 L307.4,395.9 L309.4,396.2 L310.4,397.5 L311.8,399.6 Z"/>
+  <path d="M337.4,391.9 L339.6,393.2 L338.8,394.2 L335.0,395.0 L333.8,394.0 L331.4,395.3 L330.0,394.0 L333.3,392.4 L335.7,393.1 L337.4,391.9 Z"/>
+  <path d="M695.2,388.1 L691.0,388.3 L690.9,386.8 L691.3,385.6 L691.5,385.1 L693.3,385.9 L695.9,386.3 L696.0,386.8 L695.2,388.1 Z"/>
+  <path d="M903.9,363.3 L906.6,364.3 L908.1,363.9 L910.2,363.4 L911.9,363.5 L912.1,366.8 L911.2,367.8 L910.9,370.0 L909.9,369.3 L908.0,371.2 L907.4,371.1 L905.7,371.0 L904.0,368.6 L903.6,366.8 L902.0,364.3 L902.1,363.1 L903.9,363.3 Z"/>
+  <path d="M980.6,363.7 L981.2,364.8 L983.2,363.7 L984.0,364.9 L984.0,366.0 L983.0,367.3 L981.2,369.4 L979.7,370.5 L980.8,371.8 L978.6,371.8 L976.3,372.9 L975.5,374.7 L973.9,377.5 L971.7,378.8 L970.4,379.6 L967.8,379.5 L966.0,378.6 L963.0,378.4 L962.5,377.4 L964.0,375.3 L967.5,372.6 L969.3,372.0 L971.3,371.0 L973.7,369.5 L975.3,368.1 L976.6,366.0 L977.6,365.3 L978.0,363.8 L980.0,362.5 L980.6,363.7 Z"/>
+  <path d="M985.0,350.4 L987.0,353.4 L987.1,351.5 L988.4,352.2 L988.8,354.3 L991.0,355.2 L992.9,355.4 L994.5,354.4 L995.9,354.7 L995.2,357.2 L994.4,358.8 L992.2,358.7 L991.5,359.6 L991.8,360.8 L991.3,361.3 L990.3,362.8 L988.9,364.7 L986.8,365.8 L986.3,365.1 L985.1,364.7 L986.7,362.4 L985.8,360.9 L982.8,359.7 L982.9,358.7 L984.9,357.8 L985.4,355.6 L985.3,353.8 L984.1,352.0 L984.2,351.5 L982.9,350.3 L980.7,347.9 L979.5,345.9 L980.6,345.7 L982.1,347.2 L984.2,348.0 L985.0,350.4 Z"/>
+  <path d="M964.2,311.6 L963.2,312.2 L961.6,311.5 L959.6,310.2 L957.9,308.7 L956.0,306.8 L955.6,305.8 L956.8,305.9 L958.4,306.8 L959.6,307.8 L960.5,308.6 L962.8,310.3 L964.2,311.6 Z"/>
+  <path d="M995.5,298.2 L996.4,299.0 L996.0,300.4 L994.3,300.8 L992.7,300.5 L992.5,299.2 L993.5,298.3 L994.8,298.6 L995.5,298.2 Z"/>
+  <path d="M0.0,296.0 Z M998.2,296.7L996.5,297.3L996.1,296.2L997.5,295.7L998.4,295.5 Z M0.0,294.6L0.0,294.6L0.6,294.5L0.2,295.8L0.0,296.0 Z"/>
+  <path d="M966.2,295.7 L965.3,296.1 L964.4,294.9 L964.5,294.1 L966.2,295.7 Z"/>
+  <path d="M964.2,291.5 L964.6,293.7 L963.9,293.4 L963.3,293.5 L962.9,292.8 L962.9,290.6 L964.2,291.5 Z"/>
+  <path d="M639.0,287.7 L639.5,291.0 L640.2,292.3 L639.9,293.6 L639.4,294.4 L638.5,292.8 L638.0,293.6 L638.5,295.7 L638.3,296.9 L637.5,297.5 L637.3,299.9 L636.2,303.1 L634.9,306.9 L633.1,312.2 L632.1,316.1 L630.8,319.3 L628.6,319.9 L626.1,321.1 L624.5,320.4 L622.3,319.4 L621.6,317.9 L621.4,315.5 L620.4,313.3 L620.1,311.3 L620.6,309.3 L621.9,308.8 L621.9,307.9 L623.3,305.8 L623.5,304.0 L622.9,302.7 L622.3,300.9 L622.1,298.4 L623.1,296.8 L623.5,295.0 L624.8,294.9 L626.4,294.4 L627.4,293.9 L628.6,293.8 L630.2,292.3 L632.5,290.5 L633.3,289.1 L633.0,288.0 L634.1,288.3 L635.7,286.4 L635.7,284.7 L636.7,283.4 L637.6,284.6 L638.4,285.8 L639.0,287.7 Z"/>
+  <path d="M898.8,288.2 L899.8,290.4 L901.6,289.4 L902.5,290.5 L903.8,291.6 L903.5,292.9 L904.1,295.2 L904.5,296.6 L905.2,297.0 L906.0,299.3 L905.7,300.8 L906.6,302.7 L909.6,304.1 L911.6,305.4 L913.5,306.6 L913.1,307.3 L914.7,309.1 L915.8,312.1 L916.9,311.5 L918.0,312.7 L918.7,312.2 L919.2,315.2 L921.1,316.9 L922.4,317.9 L924.6,320.2 L925.4,322.4 L925.4,324.0 L925.3,325.7 L926.6,328.1 L926.4,330.5 L925.9,331.8 L925.2,334.3 L925.2,335.9 L924.7,337.9 L923.5,340.4 L921.4,341.8 L920.4,343.9 L919.5,345.3 L918.6,347.7 L917.6,349.1 L916.9,351.2 L916.5,353.1 L916.7,354.0 L915.1,354.9 L912.0,355.0 L909.4,356.2 L908.1,357.2 L906.4,358.4 L904.1,357.2 L902.4,356.7 L902.9,355.3 L901.3,355.8 L898.9,357.8 L896.5,357.1 L894.9,356.6 L893.3,356.4 L890.7,355.6 L888.9,353.9 L888.3,351.8 L887.7,350.4 L886.3,349.3 L883.7,348.9 L884.6,347.6 L883.9,345.5 L882.5,347.4 L880.1,347.9 L881.5,346.4 L882.0,344.8 L883.0,343.4 L882.8,341.4 L880.5,343.8 L878.8,344.7 L877.7,346.9 L875.6,345.8 L875.7,344.3 L873.9,342.3 L872.5,341.2 L873.0,340.6 L869.4,338.9 L867.5,338.8 L864.8,337.5 L859.8,337.8 L856.2,338.7 L853.1,339.7 L850.4,339.5 L847.5,340.9 L845.1,341.6 L844.5,343.0 L843.5,344.1 L841.1,344.2 L839.4,344.5 L836.9,343.9 L834.9,344.3 L833.0,344.4 L831.4,345.9 L830.6,345.7 L829.2,346.5 L827.8,347.4 L825.8,347.3 L824.0,347.3 L821.0,345.5 L819.5,345.0 L819.6,343.4 L821.0,343.0 L821.4,342.4 L821.3,341.4 L821.7,339.5 L821.4,337.8 L819.9,335.0 L819.4,333.4 L819.6,331.8 L818.4,330.0 L818.4,329.2 L817.1,328.1 L816.8,325.9 L815.2,323.7 L814.8,322.5 L816.0,323.7 L815.1,321.2 L816.5,322.0 L817.3,323.1 L817.3,321.6 L815.9,319.4 L815.6,318.6 L815.0,317.7 L815.3,316.1 L815.8,315.4 L816.2,314.1 L815.9,312.4 L817.1,310.4 L817.3,312.5 L818.5,310.6 L820.7,309.7 L822.1,308.5 L824.2,307.5 L825.5,307.3 L826.2,307.6 L828.4,306.6 L830.1,306.3 L830.5,305.7 L831.3,305.4 L832.8,305.5 L835.7,304.7 L837.2,303.4 L837.9,302.0 L839.6,300.5 L839.7,299.4 L839.8,297.9 L841.7,295.6 L842.9,298.0 L844.1,297.4 L843.1,296.1 L843.9,294.8 L845.2,295.4 L845.5,293.2 L847.0,291.9 L847.7,290.8 L849.1,290.3 L849.1,289.5 L850.3,289.9 L850.4,289.2 L851.6,288.8 L853.0,288.4 L855.0,289.7 L856.6,291.3 L858.3,291.3 L860.1,291.6 L859.5,290.1 L860.8,287.8 L862.1,287.1 L861.6,286.4 L862.8,284.8 L864.5,283.8 L865.9,284.2 L868.3,283.7 L868.2,282.2 L866.2,281.3 L867.7,280.9 L869.5,281.6 L871.0,282.7 L873.3,283.4 L874.1,283.2 L875.8,284.0 L877.4,283.2 L878.5,283.5 L879.1,282.9 L880.4,284.3 L879.7,285.8 L878.6,286.9 L877.7,287.0 L878.0,288.1 L877.2,289.5 L876.2,290.9 L876.4,291.7 L878.6,293.2 L880.7,294.1 L882.2,295.0 L884.2,296.7 L885.0,296.7 L886.4,297.4 L886.8,298.3 L889.5,299.2 L891.3,298.2 L891.9,296.8 L892.4,295.5 L892.8,294.0 L893.6,291.8 L893.2,290.4 L893.4,289.6 L893.1,288.0 L893.5,286.0 L894.0,285.4 L893.6,284.5 L894.2,283.0 L894.8,281.5 L894.8,280.7 L895.9,279.6 L896.7,281.0 L896.8,282.7 L897.5,283.1 L897.7,284.2 L898.7,285.7 L898.9,287.2 L898.8,288.2 Z"/>
+  <path d="M950.3,279.1 L951.1,280.1 L949.2,280.1 L948.1,278.3 L949.8,279.0 L950.3,279.1 Z"/>
+  <path d="M835.3,278.4 L834.1,278.5 L830.5,276.5 L833.1,276.0 L834.5,276.8 L835.5,277.7 L835.3,278.4 Z"/>
+  <path d="M946.8,277.4 L945.7,277.5 L944.0,277.2 L943.4,276.8 L943.6,275.7 L945.4,276.1 L946.4,276.7 L946.8,277.4 Z"/>
+  <path d="M949.1,276.7 L948.7,277.2 L946.6,274.8 L946.1,273.1 L947.0,273.1 L948.0,275.3 L949.1,276.7 Z"/>
+  <path d="M845.7,278.2 L843.3,278.8 L842.9,278.4 L843.2,277.5 L844.4,275.8 L847.1,274.7 L847.5,274.0 L849.8,273.4 L851.8,273.3 L852.7,273.0 L853.7,273.3 L852.7,274.1 L849.8,275.3 L847.5,276.1 L845.7,278.2 Z"/>
+  <path d="M827.5,272.5 L828.5,273.2 L830.2,273.0 L830.9,274.2 L827.7,274.7 L825.8,275.1 L824.3,275.1 L825.2,273.5 L826.8,273.5 L827.5,272.5 Z"/>
+  <path d="M841.4,272.5 L841.0,274.0 L836.8,274.8 L833.1,274.5 L833.1,273.5 L835.3,272.9 L837.1,273.7 L838.9,273.5 L841.4,272.5 Z"/>
+  <path d="M944.1,273.2 L944.2,273.7 L942.0,272.5 L940.5,271.5 L939.5,270.6 L939.9,270.3 L941.2,271.0 L943.4,272.3 L944.1,273.2 Z"/>
+  <path d="M937.6,270.4 L937.0,270.6 L935.8,269.9 L934.7,268.8 L934.8,268.3 L936.5,269.5 L937.6,270.4 Z"/>
+  <path d="M801.7,268.8 L807.1,269.1 L807.7,268.0 L812.8,269.3 L813.8,271.1 L818.0,271.6 L821.4,273.3 L818.2,274.3 L815.2,273.2 L812.7,273.3 L809.8,273.1 L807.2,272.6 L804.0,271.5 L801.9,271.2 L800.8,271.6 L795.7,270.4 L795.2,269.2 L792.7,269.0 L794.6,266.4 L798.0,266.5 L800.2,267.6 L801.3,267.8 L801.7,268.8 Z"/>
+  <path d="M874.2,267.3 L872.8,269.2 L872.5,267.1 L873.0,266.1 L873.6,265.1 L874.2,265.9 L874.2,267.3 Z"/>
+  <path d="M933.0,268.9 L932.2,269.2 L931.0,268.2 L929.8,266.4 L929.2,264.3 L929.6,264.0 L929.9,264.8 L930.7,265.5 L932.1,267.2 L933.4,268.2 L933.0,268.9 Z"/>
+  <path d="M922.2,265.2 L920.7,265.4 L920.3,266.2 L918.8,266.9 L917.3,267.5 L915.9,267.5 L913.6,266.7 L912.0,266.0 L912.2,265.1 L914.7,265.5 L916.2,265.3 L916.7,264.0 L917.1,263.9 L917.3,265.4 L918.9,265.2 L919.7,264.2 L921.2,263.2 L920.9,261.6 L922.6,261.5 L923.2,262.0 L923.1,263.5 L922.2,265.2 Z"/>
+  <path d="M853.5,259.6 L852.4,260.5 L850.5,260.0 L850.0,258.8 L852.8,258.7 L853.5,259.6 Z"/>
+  <path d="M862.4,258.6 L863.4,260.7 L861.1,259.6 L858.8,259.3 L857.2,259.5 L855.3,259.4 L855.9,257.9 L859.4,257.8 L862.4,258.6 Z"/>
+  <path d="M925.4,262.5 L924.5,263.2 L924.0,261.6 L923.3,260.5 L922.1,259.6 L920.5,258.4 L918.5,257.6 L919.3,256.9 L920.8,257.7 L921.7,258.3 L922.9,259.0 L924.0,260.2 L925.1,261.1 L925.4,262.5 Z"/>
+  <path d="M872.6,253.2 L873.4,257.7 L876.3,259.4 L878.6,256.4 L881.8,254.7 L884.2,254.7 L886.6,255.7 L888.7,256.7 L891.7,257.2 L896.5,259.1 L901.6,260.7 L903.5,262.1 L905.1,263.5 L905.5,265.2 L910.1,266.9 L910.8,268.4 L908.2,268.7 L908.9,270.5 L911.3,272.3 L913.1,275.3 L914.7,275.2 L914.6,276.4 L916.8,276.9 L915.9,277.4 L918.9,278.6 L918.6,279.4 L916.7,279.6 L916.1,278.9 L913.7,278.6 L910.9,278.1 L908.7,276.4 L907.1,274.8 L905.7,272.4 L902.1,271.2 L899.7,272.0 L898.0,272.9 L898.4,275.0 L896.2,275.9 L894.6,275.4 L891.8,275.3 L889.3,273.0 L886.5,272.5 L885.8,273.3 L882.3,273.4 L883.4,271.1 L885.2,270.3 L884.5,267.3 L883.1,265.0 L877.7,262.6 L875.5,262.4 L871.3,259.8 L870.5,261.2 L869.4,261.4 L868.8,260.4 L868.8,259.2 L866.6,257.8 L869.6,256.8 L871.6,256.9 L871.4,256.2 L867.3,256.1 L866.2,254.5 L863.7,254.0 L862.6,252.6 L866.3,251.9 L867.7,251.0 L872.2,252.2 L872.6,253.2 Z"/>
+  <path d="M847.9,246.1 L845.7,248.8 L843.6,249.3 L840.9,248.8 L836.3,248.9 L833.8,249.3 L833.4,251.4 L835.9,253.9 L837.4,252.7 L842.6,251.7 L842.4,253.0 L841.2,252.6 L840.0,254.2 L837.5,255.3 L840.1,258.9 L839.6,259.8 L842.1,263.0 L842.1,264.8 L840.6,265.6 L839.5,264.7 L840.9,262.4 L838.2,263.5 L837.5,262.7 L837.8,261.6 L835.8,260.0 L836.0,257.3 L834.2,258.1 L834.4,261.4 L834.5,265.4 L832.8,265.8 L831.6,264.9 L832.4,262.4 L831.9,259.7 L830.8,259.7 L829.9,257.8 L831.1,256.0 L831.5,253.8 L832.8,249.6 L833.4,248.4 L835.8,246.4 L838.0,247.2 L841.5,247.6 L844.7,247.5 L847.4,245.4 L847.9,246.1 Z"/>
+  <path d="M857.5,246.9 L857.3,249.3 L855.9,249.0 L855.5,250.7 L856.6,252.2 L855.8,252.5 L854.7,250.7 L853.9,247.2 L854.4,245.0 L855.4,244.0 L855.6,245.5 L857.2,245.7 L857.5,246.9 Z"/>
+  <path d="M793.9,266.3 L790.9,266.3 L788.5,264.0 L785.0,261.7 L783.8,260.0 L781.7,257.8 L780.3,255.7 L778.2,251.8 L775.7,249.5 L774.9,247.1 L773.9,244.9 L771.4,243.2 L769.9,240.8 L767.8,239.3 L764.9,236.2 L764.7,234.8 L766.5,234.9 L770.8,235.4 L773.2,238.1 L775.4,240.0 L776.9,241.2 L779.6,244.2 L782.4,244.2 L784.7,246.1 L786.3,248.4 L788.4,249.7 L787.3,252.0 L788.9,252.9 L789.9,253.0 L790.4,254.9 L791.4,256.5 L793.4,256.7 L794.7,258.5 L794.0,262.0 L793.9,266.3 Z"/>
+  <path d="M827.4,244.9 L830.5,247.5 L827.3,247.8 L826.3,249.7 L826.4,252.2 L823.8,254.1 L823.7,256.9 L822.6,261.1 L822.2,260.2 L819.1,261.4 L818.0,259.7 L816.0,259.6 L814.6,258.7 L811.3,259.7 L810.3,258.3 L808.5,258.5 L806.2,258.2 L805.7,254.4 L804.4,253.7 L803.0,251.3 L802.6,248.8 L803.0,246.3 L804.6,244.4 L806.7,245.4 L808.8,244.9 L809.4,242.5 L810.5,242.0 L813.9,241.4 L815.9,239.2 L817.2,237.4 L818.3,236.4 L820.7,234.9 L822.8,232.9 L824.2,230.8 L825.4,230.8 L826.8,232.2 L826.9,233.4 L828.7,234.1 L831.1,235.0 L830.9,236.1 L829.0,236.2 L829.5,237.6 L827.4,238.5 L825.9,241.0 L827.9,243.6 L827.4,244.9 Z"/>
+  <path d="M851.0,226.6 L851.3,228.5 L851.5,230.0 L850.5,232.6 L849.5,229.7 L848.2,231.1 L849.1,233.2 L848.3,234.5 L845.1,232.9 L844.3,230.9 L845.1,229.6 L843.4,228.2 L842.5,229.4 L841.2,229.3 L839.1,230.8 L838.7,230.0 L839.8,227.7 L841.5,226.9 L843.0,225.9 L844.0,227.1 L846.1,226.3 L846.6,225.1 L848.5,225.0 L848.4,222.9 L850.6,224.2 L850.8,225.6 L851.0,226.6 Z"/>
+  <path d="M725.6,232.8 L723.2,233.4 L721.9,231.2 L721.4,227.2 L722.6,222.7 L724.6,224.3 L725.8,226.2 L727.2,229.1 L726.8,232.0 L725.6,232.8 Z"/>
+  <path d="M330.7,221.9 L328.4,222.2 L327.9,222.0 L328.7,221.2 L328.7,220.1 L330.3,219.7 L330.8,219.8 L330.7,221.9 Z"/>
+  <path d="M844.4,221.4 L843.4,222.4 L842.5,224.1 L841.7,224.9 L839.9,223.0 L840.5,222.3 L841.2,221.5 L841.5,219.8 L843.0,219.6 L842.6,221.5 L844.7,218.8 L844.4,221.4 Z"/>
+  <path d="M829.2,224.1 L825.5,226.8 L826.8,224.8 L828.8,223.1 L830.5,221.2 L832.0,218.4 L832.5,220.7 L830.6,222.2 L829.2,224.1 Z"/>
+  <path d="M838.6,217.0 L840.2,217.8 L842.0,217.8 L841.9,219.0 L840.7,220.2 L838.9,221.0 L838.8,219.7 L839.0,218.3 L838.6,217.0 Z"/>
+  <path d="M848.6,216.2 L849.4,219.3 L847.3,218.6 L847.3,219.5 L848.0,221.2 L846.7,221.9 L846.6,219.9 L845.7,219.7 L845.3,218.1 L846.9,218.3 L846.9,217.2 L845.2,215.1 L847.8,215.2 L848.6,216.2 Z"/>
+  <path d="M837.6,213.7 L836.8,216.1 L835.6,214.7 L834.2,212.6 L836.6,212.7 L837.6,213.7 Z"/>
+  <path d="M837.0,198.6 L838.7,199.4 L839.6,198.7 L839.8,199.4 L839.4,200.5 L840.3,202.5 L839.6,204.8 L837.9,205.7 L837.5,208.0 L838.1,210.2 L839.6,210.5 L840.8,210.2 L844.3,211.7 L844.0,213.2 L844.9,213.9 L844.7,215.2 L842.5,213.8 L841.5,212.4 L840.8,213.4 L839.0,211.7 L836.5,212.1 L835.1,211.5 L835.2,210.4 L836.1,209.6 L835.3,209.0 L834.9,210.0 L833.5,208.4 L833.1,207.2 L833.0,204.5 L834.1,205.5 L834.4,201.1 L835.3,198.6 L837.0,198.6 Z"/>
+  <path d="M317.8,199.4 L317.1,200.1 L315.0,200.0 L313.4,200.1 L313.2,199.0 L313.6,198.6 L315.9,198.6 L317.3,198.8 L317.8,199.4 Z"/>
+  <path d="M286.4,200.4 L285.5,200.8 L284.0,200.4 L282.4,199.4 L282.7,198.7 L283.9,198.5 L284.5,198.6 L286.4,198.9 L287.9,199.6 L288.3,200.3 L286.4,200.4 Z"/>
+  <path d="M298.4,194.8 L300.8,195.2 L301.1,194.8 L303.3,194.8 L305.0,195.5 L305.7,195.4 L306.2,196.4 L307.7,196.4 L307.6,197.2 L308.9,197.3 L310.2,198.3 L309.2,199.4 L307.9,198.8 L306.6,198.9 L305.7,198.8 L305.2,199.3 L304.1,199.5 L303.7,198.8 L302.8,199.2 L301.7,201.1 L301.0,200.7 L300.8,199.9 L299.0,199.4 L297.7,199.6 L296.0,199.4 L294.7,199.9 L293.2,199.0 L293.4,198.2 L296.0,198.5 L298.1,198.8 L299.1,198.1 L297.8,196.9 L297.8,195.9 L296.1,195.4 L296.7,194.7 L298.4,194.8 Z"/>
+  <path d="M806.5,198.1 L804.1,199.5 L801.8,198.6 L801.7,196.2 L803.1,194.9 L806.1,194.2 L807.7,194.2 L808.4,195.3 L807.1,196.5 L806.5,198.1 Z"/>
+  <path d="M67.9,197.0 L67.5,197.5 L66.8,197.1 L66.9,196.3 L66.5,195.3 L66.6,195.0 L67.1,194.5 L66.9,194.0 L67.1,193.7 L67.3,193.8 L68.3,194.2 L68.8,194.5 L69.3,194.8 L70.0,195.8 L69.9,196.0 L68.8,196.6 L67.9,197.0 Z"/>
+  <path d="M66.5,192.7 L65.5,192.9 L65.0,192.3 L64.7,192.0 L64.7,191.9 L65.0,191.6 L66.0,191.9 L66.7,192.3 L66.5,192.7 Z"/>
+  <path d="M64.6,191.2 L64.5,191.5 L63.0,191.4 L63.2,191.1 L64.6,191.2 Z"/>
+  <path d="M62.1,190.8 L61.9,190.9 L61.7,190.9 L60.8,190.8 L60.4,190.2 L60.3,190.1 L61.0,189.7 L61.3,189.9 L62.1,190.8 Z"/>
+  <path d="M57.4,188.9 L57.0,189.2 L56.1,188.7 L56.3,188.5 L56.7,188.2 L57.3,188.3 L57.4,188.9 Z"/>
+  <path d="M278.7,186.8 L279.8,187.8 L282.4,187.5 L283.4,188.1 L285.7,189.8 L287.4,191.1 L288.4,191.1 L290.0,191.6 L289.8,192.4 L291.9,192.5 L294.0,193.7 L293.6,194.3 L291.8,194.7 L289.9,194.8 L288.0,194.6 L284.0,194.8 L285.9,193.3 L284.7,192.6 L283.0,192.4 L282.0,191.6 L281.3,190.0 L279.8,190.1 L277.2,189.4 L276.3,188.8 L272.7,188.4 L271.8,187.8 L272.8,187.1 L270.1,187.0 L268.1,188.4 L266.9,188.5 L266.5,189.1 L265.1,189.4 L264.0,189.2 L265.4,188.3 L266.0,187.3 L267.3,186.7 L268.7,186.2 L270.8,185.9 L271.5,185.6 L273.9,185.8 L276.1,185.8 L278.7,186.8 Z"/>
+  <path d="M284.6,184.0 L283.9,184.1 L283.2,182.5 L282.2,181.7 L282.8,180.0 L283.6,180.1 L284.6,182.4 L284.6,184.0 Z"/>
+  <path d="M836.6,186.7 L835.4,189.0 L833.9,186.6 L833.6,184.6 L835.3,181.8 L837.5,179.7 L838.8,180.6 L838.3,182.2 L836.6,186.7 Z"/>
+  <path d="M283.8,176.2 L280.8,176.6 L280.6,175.6 L281.9,175.4 L283.8,175.4 L283.8,176.2 Z"/>
+  <path d="M286.1,176.1 L285.6,178.1 L285.1,177.8 L285.2,176.3 L283.9,175.2 L283.9,174.9 L286.1,176.1 Z"/>
+  <path d="M874.0,155.1 L874.3,156.1 L872.8,157.8 L871.6,156.9 L870.2,157.5 L869.5,159.2 L867.7,158.4 L867.7,157.0 L869.2,155.4 L870.8,155.7 L872.0,154.5 L874.0,155.1 Z"/>
+  <path d="M596.0,150.9 L594.2,152.1 L594.4,152.6 L594.5,152.8 L591.6,154.0 L590.2,153.6 L589.6,152.5 L590.9,152.4 L591.1,152.4 L591.5,151.7 L593.5,151.7 L596.0,150.9 Z"/>
+  <path d="M565.8,150.8 L567.4,151.8 L569.5,151.6 L571.6,151.8 L571.5,152.3 L573.0,151.9 L572.7,152.8 L568.7,153.0 L568.7,152.5 L565.3,152.0 L565.8,150.8 Z"/>
+  <path d="M543.1,143.8 L542.1,146.0 L542.5,146.9 L541.9,148.3 L539.8,147.2 L538.4,146.9 L534.5,145.5 L534.9,144.1 L538.2,144.3 L541.0,144.0 L543.1,143.8 Z"/>
+  <path d="M525.6,135.5 L527.2,137.5 L526.9,141.2 L525.6,141.0 L524.5,141.9 L523.4,141.2 L523.3,137.8 L522.7,136.2 L524.2,136.4 L525.6,135.5 Z"/>
+  <path d="M891.6,146.8 L890.6,149.0 L891.0,150.4 L889.6,152.4 L886.0,153.7 L881.2,153.9 L877.2,157.0 L875.3,156.0 L875.2,153.9 L870.4,154.5 L867.1,155.8 L863.8,155.9 L866.7,157.9 L864.8,162.6 L863.0,163.8 L861.7,162.7 L862.4,160.2 L860.6,159.4 L859.5,157.5 L862.1,156.7 L863.5,154.9 L866.3,153.5 L868.4,151.6 L873.9,150.7 L876.9,151.3 L879.8,146.4 L881.6,147.7 L885.7,144.9 L887.3,143.8 L889.0,140.4 L888.6,137.3 L889.7,135.6 L892.7,135.1 L894.2,138.9 L894.1,141.2 L891.6,144.0 L891.6,146.8 Z"/>
+  <path d="M526.6,132.9 L525.6,135.1 L524.4,134.5 L523.7,132.6 L524.3,131.6 L526.1,130.5 L526.6,132.9 Z"/>
+  <path d="M899.7,127.3 L901.7,127.9 L903.7,126.7 L904.3,129.8 L900.2,130.6 L897.7,133.3 L893.4,131.4 L891.8,134.5 L888.8,134.5 L888.4,131.8 L889.8,129.6 L892.7,129.5 L893.5,125.6 L894.4,123.5 L897.6,126.4 L899.7,127.3 Z"/>
+  <path d="M323.2,120.7 L325.2,121.1 L327.7,121.0 L326.4,122.1 L325.4,122.3 L321.8,121.1 L321.1,120.2 L322.2,119.3 L323.2,120.7 Z"/>
+  <path d="M328.3,113.6 L327.0,113.6 L323.4,112.8 L320.8,111.5 L321.7,111.2 L325.4,111.9 L328.2,113.1 L328.3,113.6 Z"/>
+  <path d="M156.9,115.3 L155.5,115.6 L151.0,114.4 L150.1,113.4 L147.6,112.4 L147.1,111.6 L144.3,111.1 L143.2,109.6 L143.5,109.0 L146.4,109.6 L148.1,110.0 L150.7,110.3 L151.6,111.3 L153.0,112.6 L155.8,113.7 L156.9,115.3 Z"/>
+  <path d="M344.1,109.2 L342.2,111.6 L344.0,110.7 L345.9,111.3 L344.9,112.3 L347.4,113.0 L348.7,112.3 L351.5,113.2 L350.6,115.2 L352.5,114.8 L352.9,116.2 L353.8,118.0 L352.6,120.4 L351.3,120.5 L349.5,120.0 L350.1,117.7 L349.3,117.4 L346.1,119.8 L344.5,119.7 L346.4,118.4 L343.7,117.7 L340.8,117.9 L335.4,117.8 L334.9,116.9 L336.7,116.0 L335.5,115.2 L337.8,113.5 L340.7,109.1 L342.4,107.5 L344.8,106.6 L346.1,106.7 L345.6,107.5 L344.1,109.2 Z"/>
+  <path d="M131.4,99.9 L134.0,99.7 L133.2,102.8 L135.6,105.1 L134.5,105.0 L132.8,103.8 L131.8,102.5 L130.4,101.6 L129.9,100.4 L130.1,99.5 L131.4,99.9 Z"/>
+  <path d="M899.0,109.0 L901.8,114.0 L897.7,113.0 L896.0,117.1 L898.7,119.9 L898.6,121.8 L896.5,120.2 L894.7,122.3 L894.2,120.0 L894.5,117.3 L894.2,114.3 L894.8,112.2 L894.9,108.5 L893.3,105.7 L893.6,101.9 L896.1,100.7 L895.0,99.4 L896.3,99.0 L897.0,100.8 L897.9,103.5 L897.9,106.2 L899.0,109.0 Z"/>
+  <path d="M481.1,104.8 L476.2,106.5 L472.3,106.1 L474.5,103.2 L473.1,100.3 L476.9,98.2 L479.0,96.9 L481.3,96.7 L484.3,98.5 L482.8,100.4 L483.2,102.4 L481.1,104.8 Z"/>
+  <path d="M535.2,95.5 L533.6,97.8 L530.7,96.2 L530.3,95.1 L534.4,94.1 L535.2,95.5 Z"/>
+  <path d="M75.0,91.3 L72.2,92.4 L70.8,91.7 L70.4,90.4 L72.9,89.4 L74.4,89.0 L76.2,89.2 L77.4,90.0 L75.0,91.3 Z"/>
+  <path d="M491.7,87.1 L488.7,90.1 L491.5,89.8 L494.6,89.8 L493.8,92.0 L491.3,94.5 L494.2,94.7 L496.9,98.3 L498.8,98.7 L500.5,101.9 L501.3,103.0 L504.7,103.5 L504.3,105.3 L502.9,106.1 L504.0,107.5 L501.5,109.0 L497.8,109.0 L493.1,109.7 L491.8,109.2 L490.0,110.5 L487.4,110.2 L485.4,111.2 L484.0,110.7 L488.0,107.7 L490.5,107.2 L486.2,106.7 L485.4,105.6 L488.3,104.7 L486.8,103.2 L487.3,101.4 L491.4,101.7 L491.8,100.0 L489.9,98.3 L486.5,97.8 L485.9,97.1 L486.9,95.8 L486.0,95.0 L484.5,96.4 L484.3,93.7 L482.9,92.3 L483.9,89.4 L486.1,87.1 L488.3,87.4 L491.7,87.1 Z"/>
+  <path d="M40.1,83.6 L38.4,84.0 L36.5,83.5 L34.9,82.7 L37.6,82.3 L39.8,82.5 L40.1,83.6 Z"/>
+  <path d="M279.8,77.3 L278.7,78.8 L277.5,78.6 L276.8,77.7 L276.9,77.5 L278.0,76.7 L279.1,76.8 L279.8,77.3 Z"/>
+  <path d="M272.5,75.8 L269.3,77.3 L267.3,77.3 L266.7,76.5 L268.8,75.2 L272.6,75.3 L272.5,75.8 Z"/>
+  <path d="M23.0,72.8 L24.7,73.4 L26.4,73.1 L28.7,73.8 L31.4,74.2 L31.2,74.5 L29.1,75.1 L27.0,74.5 L25.9,74.0 L23.5,74.1 L22.8,73.9 L23.0,72.8 Z"/>
+  <path d="M263.4,67.6 L264.0,68.8 L265.4,68.4 L267.0,69.1 L270.0,70.1 L273.2,71.0 L273.5,72.3 L275.5,72.1 L277.5,73.0 L275.0,73.9 L270.7,73.2 L269.1,71.9 L266.4,73.4 L262.4,74.9 L261.5,73.2 L257.7,73.5 L260.1,72.1 L260.5,69.9 L261.4,67.4 L263.4,67.6 Z"/>
+  <path d="M459.7,65.4 L459.1,67.2 L462.2,69.1 L458.6,71.2 L450.6,73.1 L448.2,73.6 L444.5,73.2 L436.8,72.3 L439.5,71.1 L433.5,69.7 L438.4,69.2 L438.3,68.4 L432.4,67.7 L434.3,65.9 L438.5,65.5 L442.8,67.4 L447.1,65.9 L450.6,66.7 L455.1,65.2 L459.7,65.4 Z"/>
+  <path d="M289.3,63.5 L286.1,63.6 L285.5,62.3 L286.6,60.7 L289.2,60.3 L291.4,61.1 L291.4,62.3 L291.1,62.7 L289.3,63.5 Z"/>
+  <path d="M0.0,58.4L6.8,60.6L14.1,63.3L13.9,65.0L15.7,65.7L15.1,63.7L22.6,64.1L28.1,66.7L25.3,67.9L20.8,68.2L20.7,70.9L19.6,71.5L17.0,71.4L14.9,70.5L11.2,69.7L10.5,68.5L7.7,68.0L4.6,68.4L3.1,67.4L3.7,66.4L0.3,67.0L1.6,68.3L0.0,69.5L0.0,69.5 Z M1000.0,69.5L996.4,70.7L992.8,70.5L995.3,72.0L997.0,74.3L998.2,75.0L998.6,76.2L997.9,76.9L992.7,76.3L984.9,78.4L982.4,78.7L978.2,80.7L974.2,82.4L973.1,83.7L969.2,81.7L961.9,83.9L960.7,82.9L958.0,84.1L954.3,83.7L953.4,85.5L950.0,88.2L950.1,89.3L953.3,90.0L952.9,94.0L950.4,94.1L949.2,96.4L950.3,97.6L945.5,99.0L944.5,102.2L940.4,102.9L939.5,105.7L935.5,108.3L934.5,106.4L933.3,102.3L931.8,96.2L933.1,92.3L935.4,90.7L935.6,89.4L939.9,88.7L944.9,85.2L949.6,82.4L954.6,80.2L956.9,76.2L953.5,76.5L951.8,78.8L944.8,81.8L942.5,78.4L935.3,79.4L928.4,84.0L930.7,85.7L924.5,86.4L920.2,86.7L920.4,84.7L916.1,84.3L912.6,85.7L904.1,85.2L895.0,86.0L886.0,91.4L875.3,98.0L879.7,98.3L881.1,100.1L883.8,100.7L885.6,99.3L888.6,99.5L892.6,102.5L892.7,104.9L890.5,107.7L890.3,111.0L889.1,115.4L884.9,119.4L883.9,121.4L880.2,124.6L876.4,127.8L874.6,129.5L870.9,131.1L869.2,131.1L867.4,129.8L863.7,131.8L863.3,132.7L862.2,132.6L861.0,133.5L860.2,134.4L860.3,136.4L858.9,137.0L858.4,137.5L857.3,138.4L855.5,138.8L854.3,139.6L854.2,140.8L853.8,141.1L855.0,141.5L856.5,142.7L858.9,146.0L859.6,147.8L859.6,151.0L858.6,152.5L856.1,153.1L853.8,154.2L851.3,154.5L851.0,153.0L851.6,150.9L850.3,148.0L852.4,147.5L850.5,145.1L849.1,144.6L848.8,145.1L848.0,145.4L847.9,144.8L847.2,144.6L846.4,144.1L847.2,142.9L847.8,142.6L847.6,142.1L848.3,140.6L848.1,140.1L846.5,139.8L845.2,139.1L841.3,139.9L839.3,141.2L836.3,142.0L837.7,140.7L837.2,139.6L839.4,137.7L837.9,136.3L835.5,137.2L832.3,139.2L830.6,141.0L827.9,141.1L826.5,142.4L827.9,144.3L830.2,144.7L830.3,146.0L832.5,146.8L835.6,144.8L838.1,145.9L839.9,146.0L840.3,147.4L836.4,148.2L835.1,149.7L832.4,151.1L831.0,153.0L834.0,154.6L835.1,157.3L836.7,159.8L838.6,162.0L838.6,164.0L836.8,164.8L837.5,166.3L839.1,167.1L838.7,169.4L838.0,171.6L836.5,171.8L834.4,174.9L832.2,178.5L829.6,181.8L825.8,184.4L821.9,186.7L818.8,187.0L817.1,188.3L816.1,187.4L814.6,188.7L810.7,190.1L807.7,190.6L806.8,193.5L805.2,193.7L804.5,191.6L805.2,190.6L801.4,189.7L800.1,190.1L796.4,192.5L794.1,195.1L793.5,197.1L795.6,200.0L798.2,203.6L800.7,205.3L802.4,207.6L803.7,212.7L803.3,217.6L801.0,219.4L797.8,221.2L795.6,223.5L792.1,226.1L791.1,224.3L791.9,222.4L789.8,220.9L787.5,220.5L786.4,219.0L785.0,216.1L782.5,214.9L780.1,214.9L780.5,212.7L778.0,212.8L777.8,215.8L776.3,219.9L775.4,222.3L775.6,224.3L777.4,224.4L778.6,227.0L779.1,229.4L780.6,231.0L782.3,231.3L783.7,232.7L784.4,233.0L786.0,234.7L787.2,236.5L787.3,238.4L787.0,239.7L787.3,240.6L787.5,242.2L788.5,243.0L789.6,245.5L789.5,246.4L787.6,246.6L784.9,244.5L781.6,242.3L781.3,240.9L779.7,239.1L779.3,236.8L778.3,235.2L778.6,233.2L778.0,232.0L776.9,231.0L776.4,229.6L775.0,228.0L773.6,226.7L773.2,228.3L772.6,226.8L772.9,225.1L773.8,222.4L773.5,220.3L774.3,218.2L773.4,216.6L773.6,213.5L772.5,212.1L771.6,208.8L771.1,205.3L769.9,203.0L768.1,204.4L764.9,206.3L763.4,206.1L761.6,205.5L762.6,202.0L762.0,199.4L759.8,196.2L760.2,195.2L758.5,194.8L756.6,192.6L755.8,191.1L755.6,189.7L755.1,188.4L753.9,186.8L751.4,186.7L751.6,187.8L750.8,189.3L749.6,188.8L749.2,189.3L748.4,189.0L747.3,188.7L746.9,189.7L745.0,189.7L741.6,190.3L741.8,192.4L740.3,194.0L736.3,195.9L733.2,199.2L731.1,200.9L728.3,202.7L728.3,204.0L726.9,204.7L724.4,205.7L723.1,205.8L722.3,208.0L722.9,211.6L723.0,213.9L721.8,216.5L721.8,221.2L720.4,221.4L719.1,223.5L720.0,224.4L717.4,225.2L716.5,227.1L715.4,227.9L712.8,225.3L711.5,221.4L710.4,218.6L709.4,217.3L708.0,214.6L707.3,211.1L706.8,209.4L704.3,205.6L703.1,200.2L702.3,196.6L702.3,193.3L701.7,190.7L697.7,192.3L695.7,192.0L692.1,188.6L693.5,187.6L692.6,186.5L689.4,184.2L687.3,183.5L686.5,181.5L684.4,179.4L679.2,179.9L674.7,179.9L670.8,180.3L665.6,179.5L662.6,178.9L659.4,178.5L658.3,175.1L656.9,174.6L654.8,175.1L652.0,176.4L648.6,175.5L645.8,173.4L643.1,172.6L641.3,170.0L639.2,166.3L637.7,166.7L635.9,165.8L634.9,166.9L633.3,166.7L633.8,168.0L633.6,168.6L634.5,170.7L635.6,173.1L636.9,173.7L637.4,174.7L639.3,175.9L639.5,177.0L639.2,177.9L639.6,178.9L640.4,179.6L640.7,180.6L641.1,181.2L641.0,179.2L641.7,177.8L642.5,177.5L643.3,178.3L643.4,180.0L642.7,181.6L643.3,182.7L643.8,182.5L643.9,183.3L646.0,182.8L648.3,182.9L650.0,183.0L651.9,181.1L654.0,179.3L655.8,177.6L656.6,176.7L656.9,176.9L656.6,178.1L656.3,178.6L656.7,180.8L657.9,182.7L659.5,183.7L661.5,184.0L663.1,184.5L664.4,186.1L665.1,187.1L666.1,187.4L666.1,188.0L665.1,189.7L664.7,190.5L663.5,191.4L662.5,193.3L661.2,193.1L660.6,193.8L660.2,195.2L660.5,197.0L660.3,197.4L659.0,197.4L657.2,198.4L657.0,199.8L656.3,200.3L654.6,200.3L653.5,201.0L653.5,202.1L652.2,202.9L650.7,202.7L648.8,203.6L647.5,203.7L645.5,204.5L645.0,205.7L644.9,206.7L642.1,207.8L637.7,209.1L635.2,211.1L634.0,211.3L633.2,211.1L631.5,212.2L629.8,212.8L627.4,212.9L626.7,213.1L626.1,213.8L625.4,214.0L625.0,214.7L623.6,214.7L622.7,215.0L620.8,214.9L620.1,213.3L620.1,211.8L619.7,210.9L619.1,208.9L618.3,207.7L618.9,207.6L618.6,206.3L619.0,205.8L618.8,204.6L618.5,203.4L617.6,202.6L617.4,201.5L616.0,200.5L614.5,198.1L613.7,195.9L611.8,194.0L610.6,193.5L608.7,190.9L608.4,188.9L608.5,187.3L606.9,184.2L605.6,183.1L604.1,182.5L603.2,180.9L603.4,180.3L602.6,178.9L601.8,178.3L600.7,176.2L599.0,174.0L597.6,172.0L596.2,172.1L596.6,170.5L596.8,169.6L597.1,168.5L597.0,168.1L596.2,169.2L595.6,171.3L594.9,172.7L594.2,173.2L593.3,172.3L592.0,171.1L590.1,167.1L589.8,167.3L590.9,170.3L592.6,173.1L594.7,177.4L595.8,178.9L596.7,180.5L599.1,183.5L598.6,184.0L598.7,185.8L601.9,188.3L602.4,188.9L603.3,191.6L602.7,192.1L603.1,195.0L604.1,198.3L605.2,199.0L606.7,200.0L608.3,203.2L609.1,205.8L610.6,207.1L614.4,209.7L615.9,211.3L617.4,212.9L618.3,213.9L619.7,214.7L620.3,215.6L620.2,216.7L618.7,217.4L619.8,218.2L620.8,218.7L621.3,219.8L622.5,221.0L623.9,221.0L626.5,220.3L629.6,220.0L632.0,219.1L633.4,218.9L634.4,218.4L636.0,218.3L636.9,218.2L638.1,217.8L639.6,217.6L640.9,216.6L642.0,216.6L642.0,217.4L641.8,219.0L641.8,220.4L641.2,221.4L640.4,224.5L639.1,227.5L637.4,231.1L635.0,235.2L632.6,238.3L629.3,242.1L626.6,244.3L622.4,247.1L619.8,249.2L616.8,252.6L616.1,254.0L615.5,254.7L613.6,255.8L612.9,256.9L611.8,257.1L611.4,259.1L610.6,260.2L610.0,262.1L608.9,263.0L607.6,266.4L607.8,268.0L609.6,269.0L609.6,269.7L608.9,271.4L609.0,272.2L608.9,273.6L609.8,275.3L611.0,278.1L612.0,278.7L612.4,279.9L612.3,282.7L612.7,285.1L612.8,289.4L613.3,290.8L612.4,292.8L611.4,294.7L609.6,296.4L607.0,297.5L603.9,298.9L600.8,301.8L599.7,302.3L597.8,304.3L596.6,305.0L596.4,306.9L597.7,309.0L598.3,310.7L598.3,311.5L598.8,311.4L598.7,314.1L598.3,315.4L598.9,315.9L598.5,317.0L597.3,318.0L595.0,318.9L591.7,320.4L590.5,321.5L590.7,322.6L591.4,322.8L591.2,324.3L590.5,326.3L590.2,328.6L589.5,329.9L587.6,331.3L587.0,331.7L585.8,333.1L585.1,334.5L583.5,336.5L580.3,339.4L578.4,341.0L576.3,342.3L573.4,343.4L572.0,343.5L571.6,344.3L569.9,343.9L568.5,344.4L565.5,343.9L563.9,344.2L562.7,344.1L559.8,345.2L557.5,345.6L555.8,346.7L554.5,346.7L553.3,345.7L552.4,345.7L551.2,344.4L551.0,344.8L550.7,344.1L550.7,342.4L549.8,340.6L550.7,340.1L550.6,338.0L548.8,335.4L547.4,333.0L547.4,333.0L545.4,329.4L543.3,327.3L542.3,325.3L541.6,322.5L541.0,320.5L540.0,316.3L540.0,312.9L539.6,311.4L538.5,310.3L537.1,308.0L535.6,304.6L535.0,302.9L532.8,300.2L532.6,298.1L532.3,296.3L532.7,293.9L533.7,291.3L533.8,290.1L534.7,287.6L535.4,286.5L537.0,284.7L537.9,283.4L538.2,281.4L538.0,279.8L537.2,278.8L536.4,277.1L535.8,275.5L535.9,274.9L536.8,273.8L535.9,271.1L535.4,269.2L534.0,267.5L534.2,266.9L533.8,266.1L533.1,264.0L530.8,261.1L528.0,258.2L526.1,256.0L524.4,253.1L524.5,252.2L525.1,251.3L525.8,249.3L526.4,247.2L525.8,246.8L526.8,243.7L527.2,241.5L526.1,239.6L524.9,239.2L524.3,237.9L523.6,237.5L523.6,236.7L520.7,237.7L519.7,237.6L518.6,238.2L516.4,238.2L514.9,236.4L514.0,234.4L512.0,232.6L509.9,232.6L507.5,232.6L505.2,232.9L502.9,233.5L498.6,235.2L497.0,236.1L494.5,236.9L492.1,236.1L490.8,236.2L488.9,235.6L487.1,235.6L483.8,236.1L481.9,236.9L479.1,237.9L478.6,237.9L477.8,237.9L475.0,236.6L472.5,234.5L470.1,232.9L468.2,231.1L467.5,230.9L465.5,229.8L464.0,228.3L463.5,227.3L463.2,225.3L462.0,223.6L460.9,222.5L460.2,222.2L459.5,221.6L459.2,220.4L458.8,219.8L458.0,219.3L456.5,218.2L455.3,218.0L454.7,217.2L454.7,216.8L453.9,216.2L453.7,215.6L453.2,213.5L453.6,212.2L452.4,210.1L451.0,209.1L452.3,208.6L453.6,206.6L454.3,205.2L454.0,203.7L454.8,202.3L455.1,199.7L454.8,197.0L454.5,195.6L454.8,194.2L454.1,192.9L452.6,191.7L452.7,190.5L452.9,189.2L453.9,188.5L454.8,187.0L454.6,186.1L455.6,184.1L457.2,182.3L458.1,181.9L458.8,180.3L458.9,178.8L459.9,177.1L461.7,176.1L463.5,173.2L464.9,172.1L467.5,171.8L469.7,169.9L471.1,169.2L473.4,166.9L472.7,163.4L473.8,161.0L474.2,159.5L476.0,157.7L478.7,156.4L480.8,155.2L482.7,152.4L483.5,150.7L485.6,150.7L487.2,151.9L489.9,151.7L492.8,152.3L494.0,152.3L496.6,150.8L499.6,150.3L501.4,149.2L504.1,148.3L508.8,147.8L513.4,147.6L514.8,148.0L517.4,146.9L520.4,146.9L521.5,147.5L523.4,147.4L526.4,146.2L528.4,146.6L528.3,148.0L530.6,147.0L530.8,147.5L529.4,148.9L529.4,150.1L530.4,150.8L530.0,153.2L528.2,154.6L528.7,156.2L530.2,156.2L530.9,157.5L531.9,158.0L535.2,158.9L536.3,158.7L538.7,159.1L542.3,160.4L543.6,162.8L546.1,163.4L550.1,164.5L553.0,165.9L554.4,165.2L555.7,163.9L555.1,161.8L555.9,160.4L557.9,159.1L559.8,158.8L563.6,159.3L564.5,160.6L565.6,160.6L566.5,161.1L569.2,161.4L569.9,162.3L573.6,162.3L576.3,163.0L579.0,163.8L580.3,164.3L582.5,163.4L583.6,162.6L586.0,162.3L588.0,162.7L588.8,164.1L589.4,163.2L591.6,163.8L593.8,164.0L595.2,163.3L596.0,162.4L595.8,162.2L596.5,160.9L597.1,158.8L597.5,158.1L597.6,158.1L598.6,155.8L599.9,153.9L600.0,153.8L599.7,151.6L600.4,150.5L599.4,149.2L600.4,148.2L598.8,148.4L596.4,147.8L594.5,149.4L590.3,149.7L588.1,148.2L585.1,148.1L584.4,149.3L582.5,149.6L579.8,148.1L576.8,148.2L575.1,145.4L573.1,143.9L574.5,141.7L572.7,140.4L575.8,137.7L580.1,137.6L581.2,135.5L586.5,135.9L589.9,134.1L593.1,133.3L597.7,133.2L602.5,135.2L606.5,136.3L609.8,135.8L612.1,136.1L615.4,134.6L615.8,133.4L615.1,131.5L613.5,130.5L612.0,130.2L611.0,129.3L607.4,127.0L604.3,126.0L601.9,124.3L603.9,123.9L606.2,121.6L604.6,120.5L608.7,119.3L608.7,118.7L606.2,119.2L604.0,119.4L602.1,120.3L599.5,120.4L597.1,121.5L597.3,123.2L598.6,123.9L601.5,123.7L600.9,124.7L597.9,125.2L594.1,126.8L592.6,126.2L593.2,124.9L590.1,124.1L590.6,123.6L593.3,122.6L592.5,122.0L588.2,121.3L588.0,120.3L585.4,120.6L584.4,122.1L582.2,124.2L582.3,124.9L580.9,125.5L580.1,125.2L579.3,128.6L577.9,129.7L576.9,131.7L577.8,133.3L578.1,134.4L580.5,135.3L580.0,136.0L576.7,136.1L575.5,137.0L573.2,138.5L572.3,137.2L572.4,136.6L570.7,136.5L569.2,136.3L565.9,137.0L567.8,138.5L566.4,139.0L564.8,139.0L563.4,137.6L562.9,138.2L563.5,139.8L564.9,141.1L563.8,141.7L565.4,143.0L566.7,143.8L566.8,145.4L564.2,144.7L565.0,146.1L563.3,146.4L564.3,148.8L562.5,148.9L560.2,147.7L559.2,145.4L558.7,143.6L557.6,142.3L556.2,140.7L556.0,139.9L555.5,139.7L555.4,139.1L553.9,138.2L553.7,136.9L553.9,135.0L554.3,134.1L553.8,133.7L553.2,133.5L552.4,132.6L551.2,132.0L548.6,131.0L547.0,130.0L544.5,129.1L542.2,127.1L542.7,126.9L541.4,125.7L541.4,124.8L539.6,124.3L538.8,125.5L537.9,124.6L538.0,123.7L538.1,123.6L538.7,123.4L536.5,123.0L534.2,123.9L534.4,125.3L534.1,126.1L535.0,127.5L537.6,128.9L539.0,131.2L542.1,133.5L544.2,133.4L544.9,134.1L544.1,134.6L546.6,135.6L548.7,136.5L551.0,137.9L551.3,138.4L550.8,139.4L549.3,138.1L546.9,137.7L545.7,139.5L547.7,140.5L547.4,141.9L546.2,142.1L544.7,144.5L543.6,144.7L543.6,143.8L544.1,142.4L544.7,141.8L543.7,140.2L542.8,138.8L541.7,138.4L540.8,137.2L539.1,136.7L537.9,135.6L535.8,135.4L533.6,134.2L531.1,132.3L529.2,130.7L528.3,128.0L527.0,127.7L524.7,126.8L523.4,127.1L521.8,128.4L520.7,128.6L518.1,130.2L512.7,129.4L508.6,130.3L508.3,132.0L508.4,133.6L505.8,135.5L502.3,136.1L502.0,137.0L500.3,138.5L499.2,140.8L500.3,142.4L498.7,143.6L498.1,145.4L496.0,146.0L494.0,148.1L490.5,148.2L487.9,148.1L486.1,149.1L485.1,150.1L483.7,149.9L482.7,149.0L481.9,147.4L479.3,146.9L478.2,147.7L476.7,147.3L475.3,147.6L475.7,145.4L475.4,143.7L474.2,143.4L473.5,142.4L473.8,140.6L474.9,139.6L475.1,138.4L475.6,136.8L475.6,135.6L475.0,134.6L474.9,133.7L475.0,131.7L473.9,130.5L477.8,128.5L481.2,129.0L485.0,129.0L487.9,129.4L490.2,129.3L494.7,129.4L496.2,127.7L496.7,122.2L493.8,119.3L491.8,117.9L487.5,116.8L487.2,114.8L490.8,114.2L495.5,114.9L494.6,111.7L497.3,112.9L503.7,110.8L504.6,108.5L507.0,107.9L509.2,107.4L510.6,106.6L513.1,102.5L516.9,101.4L519.2,101.4L519.7,100.9L522.0,100.7L522.6,101.3L524.4,99.9L523.8,98.9L523.7,97.3L522.6,95.8L522.5,92.9L522.9,92.2L523.7,91.4L526.2,91.2L527.2,90.4L529.4,89.6L529.3,91.1L528.5,92.0L528.8,92.8L530.3,93.2L529.6,94.2L528.8,93.9L526.8,95.9L527.6,97.3L527.6,98.3L530.4,99.0L530.4,100.0L533.2,99.5L534.8,98.7L537.9,99.8L539.2,100.7L541.1,99.9L545.5,98.6L549.0,97.6L551.7,98.1L551.9,98.8L554.6,98.8L555.2,97.6L559.1,96.7L558.5,94.4L558.6,92.3L559.9,90.5L562.6,89.6L564.8,91.7L567.0,91.6L567.5,89.5L567.9,87.8L566.8,88.2L565.1,87.2L564.8,85.6L568.3,84.8L571.8,84.4L574.9,84.9L577.7,84.8L580.9,83.3L578.0,81.9L572.9,82.2L568.0,83.2L563.5,83.8L561.9,82.2L559.2,81.3L559.8,78.6L558.5,76.1L559.8,74.5L562.3,72.7L568.7,69.7L570.5,69.1L570.3,68.0L566.4,66.6L561.6,67.4L558.9,69.4L559.4,71.1L554.9,73.3L549.6,75.7L547.6,79.6L549.5,81.6L552.2,83.1L549.6,86.2L546.7,86.9L545.7,91.6L544.1,94.2L540.7,93.9L539.2,96.1L536.0,96.2L535.1,93.6L532.7,90.4L530.6,86.5L528.8,84.8L523.3,88.0L519.6,88.7L515.7,87.3L514.7,84.3L513.9,77.9L516.4,76.1L523.8,73.7L529.2,70.9L534.3,67.0L541.0,61.6L545.7,59.5L553.3,56.1L559.4,54.8L564.0,55.0L568.2,52.7L573.2,52.8L578.2,52.3L586.9,54.3L583.3,55.0L586.4,56.8L589.3,55.8L593.8,57.5L601.4,58.2L611.9,61.3L614.1,62.6L614.2,64.5L611.2,65.9L606.6,66.7L594.2,64.6L592.2,64.9L596.7,66.9L597.1,71.1L600.6,71.9L602.8,72.6L603.2,71.3L601.4,70.1L603.3,69.0L610.0,70.8L612.3,70.1L610.5,68.1L616.9,65.3L619.5,65.5L622.1,66.5L623.7,64.6L621.4,62.9L622.7,61.2L620.7,59.5L628.5,60.4L630.1,62.0L626.5,62.3L626.6,63.9L628.7,64.8L633.0,64.2L633.7,62.4L639.5,61.1L649.2,58.7L651.3,58.9L648.6,60.6L652.0,60.8L654.0,59.9L659.2,59.8L663.3,58.7L666.5,60.3L669.7,58.5L666.7,56.9L668.2,56.0L676.4,56.8L680.2,57.7L690.3,60.9L692.2,59.4L689.3,57.9L689.3,57.3L685.9,57.1L686.8,55.8L685.3,53.6L685.3,52.7L690.4,50.2L692.2,47.7L694.3,47.1L701.6,47.8L702.2,49.4L699.6,51.6L701.3,52.5L702.2,54.5L701.6,58.3L704.6,60.0L703.4,61.8L698.0,65.8L701.2,66.2L702.3,65.2L705.3,64.5L706.1,63.1L708.5,61.8L706.9,60.2L708.2,58.4L705.1,58.1L704.4,56.6L706.7,53.8L703.1,51.5L708.0,49.7L707.4,47.7L708.8,47.6L710.2,49.2L709.1,51.8L712.1,52.4L710.8,50.4L715.5,49.3L721.3,49.1L726.4,50.7L723.9,48.4L723.6,45.4L728.5,44.9L735.2,45.0L741.2,44.6L738.9,43.2L742.1,41.3L745.3,41.3L750.7,39.9L758.1,39.5L759.0,38.8L766.3,38.5L768.5,39.1L774.8,37.6L779.9,37.7L780.7,36.5L783.3,35.3L789.9,34.2L794.6,35.1L790.8,35.8L797.1,36.2L797.9,37.6L800.4,36.9L808.5,36.9L814.8,38.3L817.0,39.3L816.3,40.8L813.3,41.6L806.0,43.1L803.9,43.9L807.3,44.3L811.4,45.0L813.9,44.5L815.4,46.3L816.6,45.6L821.0,45.1L829.9,45.6L830.6,46.9L842.2,47.3L842.4,45.2L848.3,45.7L852.7,45.7L857.2,47.1L858.5,48.9L856.8,50.1L860.3,52.2L864.7,53.4L867.4,50.5L871.8,51.7L876.6,51.0L881.9,51.8L884.0,51.0L888.5,51.4L886.5,48.8L890.2,47.6L915.3,49.4L917.6,51.1L924.9,53.2L936.1,52.7L941.7,53.1L944.0,54.3L943.6,56.3L947.1,57.1L950.8,56.5L955.7,56.5L960.9,57.0L966.2,56.7L971.0,59.2L974.5,58.3L972.2,56.5L973.5,55.3L982.3,56.1L988.1,55.9L996.1,57.2 Z M0.0,58.4 Z M636.4,135.3L637.8,137.3L639.1,137.4L640.0,138.2L637.7,138.4L637.2,140.6L636.7,141.5L635.7,142.2L635.8,143.6L636.7,145.6L639.3,146.2L641.2,147.6L645.2,148.1L649.5,147.3L649.8,146.7L649.3,144.7L649.7,141.8L647.5,140.9L648.2,139.0L646.4,138.8L647.0,136.5L649.6,137.1L652.0,136.2L650.0,134.6L649.2,133.0L647.0,133.7L646.7,135.7L645.8,133.9L645.7,133.3L646.4,132.1L645.8,131.1L642.6,130.2L641.4,127.7L639.8,127.0L639.7,126.1L642.4,126.3L642.5,124.3L644.9,123.9L647.3,124.3L647.8,121.6L647.3,119.9L644.6,120.0L642.2,119.3L639.0,120.5L636.4,121.1L635.1,122.8L632.4,123.2L629.7,126.1L632.2,128.7L631.9,130.6L635.0,133.9L636.4,135.3 Z"/>
+  <path d="M234.3,58.0 L232.6,59.0 L228.8,58.2 L226.6,58.5 L222.8,57.2 L225.2,56.4 L227.2,55.2 L230.1,55.9 L231.8,56.4 L232.6,57.0 L234.3,58.0 Z"/>
+  <path d="M0.0,51.3 Z M1000.0,53.2L996.9,53.4L996.5,52.5 Z M0.0,51.3 Z"/>
+  <path d="M0.0,51.3 L0.4,51.2 L2.7,51.2 L6.7,52.0 L6.5,52.4 L3.6,53.1 L0.0,53.2 L0.0,51.3 Z"/>
+  <path d="M248.5,57.0 L248.5,59.8 L252.2,57.6 L255.5,59.4 L254.7,61.5 L257.4,63.3 L260.3,61.3 L262.3,58.9 L262.4,55.9 L266.4,56.1 L270.5,56.5 L274.2,57.9 L274.4,59.3 L272.3,60.7 L274.3,62.2 L273.9,63.6 L268.5,65.5 L264.6,66.0 L261.8,65.1 L260.9,66.5 L258.2,68.9 L257.4,70.1 L254.2,71.9 L250.2,72.1 L248.0,73.3 L247.9,75.1 L244.6,75.5 L241.2,77.7 L238.2,80.8 L237.1,83.0 L237.0,86.3 L241.1,86.7 L242.3,89.3 L243.6,91.4 L247.5,90.9 L252.7,92.1 L255.4,93.1 L257.4,94.4 L260.9,95.2 L263.9,96.4 L268.4,96.5 L271.5,96.8 L271.0,99.2 L271.9,102.0 L273.9,105.1 L278.0,107.8 L280.2,106.9 L281.7,104.0 L280.2,99.6 L278.3,98.1 L282.7,96.8 L285.8,94.9 L287.4,93.0 L287.2,91.1 L285.3,88.7 L281.9,86.7 L285.2,83.7 L284.0,81.2 L283.0,76.9 L285.0,76.2 L289.7,77.0 L292.6,77.3 L294.9,76.5 L297.5,77.5 L300.9,79.1 L301.7,80.2 L306.7,80.4 L306.6,82.7 L307.5,86.2 L310.1,86.7 L312.1,88.3 L316.1,86.8 L318.8,83.7 L320.6,82.4 L322.8,84.9 L326.4,88.4 L329.5,91.8 L328.3,93.5 L332.0,95.1 L334.5,96.7 L339.0,97.4 L340.7,98.3 L341.8,100.6 L344.0,101.0 L345.1,102.0 L345.3,105.1 L343.3,106.2 L341.3,107.2 L336.7,108.2 L333.2,110.4 L328.5,110.9 L322.6,110.3 L318.4,110.3 L315.6,110.5 L313.2,112.5 L309.7,113.7 L305.7,117.4 L302.5,119.9 L304.8,119.5 L309.3,115.8 L315.1,113.5 L319.3,113.2 L321.7,114.6 L319.1,116.5 L320.0,119.5 L320.9,121.6 L324.5,122.9 L329.1,122.5 L331.9,119.4 L332.1,121.4 L333.9,122.4 L330.4,124.3 L324.3,125.9 L321.5,127.0 L318.4,129.0 L316.3,128.8 L316.2,126.5 L321.0,124.2 L316.6,124.3 L313.5,124.6 L314.0,125.5 L311.0,126.9 L308.2,127.8 L305.2,128.7 L303.6,130.5 L303.3,130.9 L303.3,132.4 L304.2,133.9 L305.3,133.9 L305.0,132.9 L305.9,133.5 L305.7,134.3 L303.8,134.8 L302.4,134.7 L300.4,135.2 L299.2,135.4 L297.6,135.5 L295.3,136.3 L299.3,135.8 L300.2,136.3 L296.3,137.1 L294.5,137.1 L294.6,136.8 L293.7,137.6 L294.6,137.7 L294.0,139.7 L291.9,141.8 L291.7,141.1 L291.1,141.0 L290.2,140.3 L290.8,141.8 L291.4,142.3 L291.5,143.3 L290.6,144.4 L289.1,146.6 L288.8,146.5 L289.7,144.6 L288.2,143.6 L287.9,141.3 L287.4,142.5 L288.0,144.2 L286.2,143.8 L288.1,144.7 L288.2,147.3 L289.0,147.5 L289.3,148.5 L289.6,151.2 L287.9,153.3 L285.0,154.1 L283.2,155.8 L281.8,155.9 L280.4,157.0 L280.0,157.9 L276.9,159.7 L275.4,161.0 L274.1,162.7 L273.6,164.6 L274.1,166.6 L275.1,168.9 L276.3,170.9 L276.3,172.1 L277.6,175.3 L277.5,177.2 L277.4,178.3 L276.7,180.0 L275.9,180.3 L274.5,180.0 L274.1,178.8 L273.0,178.1 L271.6,175.8 L270.3,173.6 L269.8,172.5 L270.4,170.7 L269.6,169.2 L267.5,166.8 L266.4,166.4 L263.6,167.7 L263.1,167.5 L261.7,166.2 L260.0,165.6 L256.9,165.9 L254.4,165.6 L252.3,165.8 L251.1,166.2 L251.6,167.0 L251.6,168.1 L252.2,168.6 L251.6,169.0 L250.6,168.6 L249.6,169.1 L247.6,169.0 L245.5,167.6 L243.1,167.9 L241.0,167.3 L239.3,167.5 L237.0,168.1 L234.4,170.2 L231.7,171.4 L230.2,172.7 L229.5,173.9 L229.5,175.9 L229.6,177.2 L230.2,178.1 L230.2,178.1 L230.2,178.1 L229.1,180.6 L228.6,182.6 L228.4,186.3 L228.1,187.7 L228.6,189.2 L229.5,190.5 L230.0,192.7 L231.9,194.7 L232.5,196.3 L233.6,197.7 L236.6,198.4 L237.7,199.6 L240.1,198.8 L242.3,198.5 L244.3,198.0 L246.1,197.6 L247.9,196.4 L248.5,194.8 L248.7,192.5 L249.2,191.7 L251.1,190.9 L254.0,190.3 L256.5,190.4 L258.2,190.2 L258.9,190.7 L258.8,192.1 L257.3,193.7 L256.6,195.4 L257.1,195.9 L256.7,197.1 L256.0,199.3 L255.3,198.6 L254.7,198.6 L254.7,199.0 L255.3,199.0 L255.2,199.8 L254.8,201.0 L255.0,201.4 L254.7,202.4 L254.9,202.7 L254.6,204.1 L254.0,204.8 L253.5,204.9 L253.0,205.9 L253.9,206.4 L254.1,206.0 L254.9,206.3 L255.2,206.4 L255.8,205.9 L256.6,205.9 L256.9,206.1 L257.3,206.0 L258.6,206.2 L259.9,206.2 L260.8,205.9 L261.1,205.5 L262.0,205.7 L262.7,205.9 L263.4,205.8 L263.9,205.6 L265.2,206.0 L265.6,206.0 L266.5,206.5 L267.3,207.2 L268.3,207.6 L269.0,208.3 L268.8,208.6 L268.7,209.2 L268.9,210.2 L268.3,211.2 L268.0,212.3 L267.9,213.5 L268.1,214.3 L268.1,215.5 L267.7,215.8 L267.4,217.0 L267.6,217.7 L267.1,218.4 L267.2,219.2 L267.6,219.6 L268.3,221.1 L269.4,222.2 L270.7,223.4 L271.7,224.4 L271.6,225.0 L272.8,225.1 L273.0,224.9 L273.8,225.6 L275.1,225.4 L276.3,224.7 L278.0,224.1 L279.0,223.3 L280.5,223.5 L280.4,223.7 L281.9,223.8 L283.2,224.3 L284.1,225.1 L285.1,225.9 L286.6,226.0 L288.7,224.1 L289.8,223.8 L289.8,222.9 L290.3,220.5 L291.9,219.2 L293.7,219.2 L293.9,218.6 L296.1,218.8 L298.3,217.4 L299.3,216.8 L300.7,215.5 L301.7,215.6 L302.4,216.4 L301.9,217.3 L301.8,217.9 L300.1,218.3 L301.1,219.5 L301.0,221.0 L299.8,222.6 L300.8,224.8 L302.0,224.6 L302.7,222.6 L301.8,221.6 L301.7,219.5 L305.1,218.4 L304.7,217.1 L305.7,216.2 L306.7,218.2 L308.7,218.2 L310.5,219.8 L310.6,220.7 L313.1,220.7 L316.0,220.4 L317.6,221.7 L319.8,222.0 L321.3,221.1 L321.3,220.4 L324.8,220.3 L328.1,220.2 L325.8,221.1 L326.7,222.4 L328.9,222.6 L331.0,223.9 L331.5,226.2 L332.9,226.1 L334.0,226.8 L335.8,227.8 L337.5,229.6 L337.6,231.0 L338.7,231.1 L340.2,232.4 L341.3,233.4 L344.6,234.0 L344.9,233.5 L347.1,233.3 L350.1,234.0 L351.1,234.3 L353.1,235.0 L356.0,237.3 L356.5,238.5 L357.5,238.3 L358.1,239.9 L359.7,244.7 L361.2,245.2 L361.3,247.1 L359.2,249.4 L360.0,250.2 L364.9,250.7 L365.0,253.4 L367.2,251.6 L370.6,252.6 L375.3,254.3 L376.6,255.9 L376.2,257.5 L379.4,256.6 L384.8,258.1 L388.9,258.0 L393.1,260.3 L396.6,263.4 L398.7,264.2 L401.1,264.3 L402.1,265.2 L403.1,268.7 L403.5,270.4 L402.4,275.0 L401.0,276.8 L397.1,280.7 L395.3,283.8 L393.3,286.2 L392.6,286.3 L391.8,288.3 L392.0,293.5 L391.2,297.8 L390.9,299.6 L390.0,300.7 L389.6,304.4 L386.7,308.1 L386.3,310.9 L384.0,312.1 L383.4,313.8 L380.3,313.8 L376.0,314.9 L374.0,316.1 L370.9,316.9 L367.6,319.1 L365.3,321.9 L364.9,324.0 L365.3,325.5 L364.8,328.3 L364.2,329.7 L362.3,331.2 L359.2,336.1 L356.7,338.3 L354.8,339.6 L353.6,342.2 L351.7,343.8 L350.5,345.5 L347.4,347.1 L345.4,346.5 L343.8,346.8 L341.3,345.6 L339.4,345.7 L337.7,344.2 L337.5,345.6 L341.0,348.0 L340.7,349.9 L342.4,351.1 L342.3,352.5 L339.6,356.1 L335.5,357.6 L329.9,358.1 L326.8,357.9 L327.4,359.5 L326.9,361.6 L327.4,363.0 L325.7,364.0 L322.9,364.4 L320.2,363.3 L319.1,364.1 L319.5,366.8 L321.4,367.7 L322.9,366.8 L323.7,368.2 L321.2,369.1 L318.9,370.8 L318.5,373.6 L317.9,375.1 L315.3,375.1 L313.1,376.5 L312.3,378.6 L315.0,380.6 L317.7,381.2 L316.7,383.7 L313.4,385.3 L311.6,388.5 L309.1,389.6 L308.0,390.9 L308.8,393.8 L310.7,395.4 L309.5,395.3 L307.1,395.3 L305.7,395.9 L303.2,396.9 L302.8,399.5 L301.6,399.6 L298.5,398.7 L295.3,396.8 L291.8,395.2 L290.9,393.4 L291.7,391.8 L290.3,389.9 L290.0,385.2 L291.2,382.5 L294.1,380.4 L289.9,379.6 L292.5,377.1 L293.5,372.5 L296.6,373.5 L298.0,367.7 L296.1,367.0 L295.3,370.5 L293.5,370.1 L294.4,366.1 L295.3,361.0 L296.6,359.1 L295.8,356.3 L295.6,353.2 L296.8,353.1 L298.5,348.6 L300.4,344.2 L301.6,340.1 L300.9,335.9 L301.8,333.6 L301.4,330.2 L303.0,326.8 L303.5,321.4 L304.4,315.6 L305.3,309.4 L305.1,304.9 L304.5,301.0 L301.7,299.4 L301.5,298.2 L296.0,295.4 L291.0,292.4 L288.9,290.7 L287.7,288.4 L288.2,287.6 L285.8,284.0 L283.1,278.8 L280.5,273.3 L279.3,272.0 L278.4,270.0 L276.3,268.2 L274.3,267.0 L275.2,265.8 L273.9,263.2 L274.7,261.2 L276.9,259.5 L278.4,257.4 L277.8,256.2 L276.8,257.5 L275.1,256.2 L275.7,255.5 L275.2,252.9 L276.2,252.5 L276.7,250.8 L277.7,249.0 L277.5,247.9 L279.1,247.3 L281.0,246.2 L280.6,245.3 L281.6,245.1 L281.5,243.7 L282.1,242.7 L283.5,242.5 L284.7,240.8 L285.8,239.3 L284.7,238.6 L285.3,237.0 L284.6,234.5 L285.2,233.8 L284.8,231.4 L283.7,229.9 L282.7,229.1 L282.1,227.6 L282.8,226.9 L282.1,226.7 L281.6,225.8 L280.2,225.0 L279.0,225.2 L278.4,226.2 L277.3,226.9 L276.7,226.9 L276.4,227.5 L277.8,229.0 L277.0,229.4 L276.6,229.8 L275.3,229.9 L274.8,228.3 L274.5,228.8 L273.6,228.6 L273.0,227.5 L271.9,227.3 L271.1,227.0 L269.9,227.0 L269.9,227.6 L269.5,227.2 L268.0,226.5 L267.5,226.0 L267.8,225.5 L267.7,224.9 L266.9,224.2 L265.8,223.6 L264.9,223.3 L264.7,222.5 L264.0,222.0 L264.1,222.8 L263.6,223.5 L262.9,222.7 L262.1,222.4 L261.7,221.8 L261.7,221.0 L262.1,220.1 L261.3,219.7 L261.9,219.2 L261.0,218.3 L259.7,217.2 L259.0,216.3 L257.9,215.4 L256.5,214.1 L256.8,213.7 L257.2,214.1 L257.5,213.9 L257.0,213.1 L256.1,212.8 L255.8,213.5 L254.2,213.4 L253.2,213.2 L252.1,212.6 L250.5,212.4 L249.7,211.8 L248.3,211.4 L246.6,211.3 L245.3,210.8 L243.8,209.6 L240.7,206.6 L239.2,205.7 L237.0,205.0 L235.4,205.2 L233.2,206.2 L231.8,206.5 L229.8,205.8 L227.7,205.3 L225.1,204.0 L223.1,203.6 L219.9,202.3 L217.6,201.0 L216.9,200.2 L215.3,200.1 L212.5,199.2 L211.3,197.9 L208.4,196.3 L207.0,194.6 L206.3,193.2 L207.2,193.0 L206.9,192.2 L207.6,191.5 L207.6,190.5 L206.7,189.2 L206.4,188.1 L205.5,186.7 L203.0,184.0 L200.2,181.8 L198.9,180.1 L196.5,178.9 L196.0,178.3 L196.4,176.5 L195.0,175.9 L193.4,174.5 L192.7,172.6 L191.2,172.4 L189.6,170.9 L188.3,169.6 L188.1,168.7 L186.6,166.6 L185.7,164.5 L185.7,163.4 L183.7,162.3 L182.8,162.4 L181.2,161.7 L180.7,162.8 L181.2,164.1 L181.5,166.2 L182.4,167.4 L184.5,169.3 L184.9,169.9 L185.4,170.1 L185.7,171.1 L186.2,171.0 L186.8,172.8 L187.6,173.5 L188.2,174.5 L190.0,175.9 L190.9,178.5 L191.7,179.7 L192.5,181.0 L192.6,182.5 L194.0,182.6 L195.1,183.9 L196.1,185.1 L196.0,185.6 L194.9,186.6 L194.4,186.6 L193.6,184.9 L191.8,183.3 L189.8,182.0 L188.4,181.3 L188.5,179.2 L188.1,177.7 L186.7,176.9 L184.8,175.6 L184.5,176.0 L183.8,175.3 L182.0,174.6 L180.4,173.0 L180.6,172.8 L181.8,172.9 L182.8,171.9 L182.9,170.7 L180.7,168.7 L179.1,167.9 L178.1,166.2 L177.1,164.3 L175.8,162.1 L174.6,159.6 L174.2,158.2 L172.4,156.6 L171.1,156.3 L170.8,155.5 L169.2,155.3 L168.2,154.6 L165.6,154.3 L164.9,153.9 L164.6,152.3 L161.9,149.5 L159.6,145.7 L159.7,145.0 L158.5,144.1 L156.3,141.8 L155.9,139.5 L154.5,138.0 L155.1,135.7 L155.0,133.3 L154.1,131.2 L155.2,128.6 L155.8,123.5 L155.3,119.8 L154.5,117.4 L153.7,116.2 L154.0,115.6 L158.0,116.6 L159.5,119.2 L160.2,118.4 L159.7,116.2 L158.8,113.9 L158.4,113.9 L153.0,111.2 L151.0,110.0 L146.0,108.8 L144.5,106.3 L144.9,104.6 L141.3,103.5 L140.8,101.2 L137.5,99.2 L137.4,97.8 L135.9,96.7 L133.4,95.8 L132.6,93.4 L129.1,91.2 L127.6,88.5 L124.9,88.4 L120.5,88.3 L117.2,87.5 L111.5,84.6 L108.8,84.1 L104.0,83.1 L100.1,83.3 L94.7,82.1 L91.4,80.9 L88.3,81.5 L88.8,83.4 L87.3,83.6 L84.1,84.2 L81.6,85.1 L78.6,85.7 L78.2,84.0 L79.4,81.3 L82.4,80.5 L81.6,79.8 L78.1,81.3 L76.2,83.2 L72.2,85.1 L74.2,86.5 L71.6,88.5 L68.6,89.6 L65.8,90.5 L65.1,91.7 L60.8,93.2 L59.9,94.5 L56.7,95.6 L54.8,95.4 L52.2,96.2 L49.3,97.2 L47.0,98.1 L42.3,98.9 L41.8,98.4 L44.9,97.1 L47.6,96.3 L50.5,94.7 L54.0,94.4 L55.4,93.3 L59.2,91.6 L59.8,91.1 L61.9,90.1 L62.4,88.0 L63.8,86.3 L60.6,87.2 L59.7,86.7 L58.2,87.7 L56.4,86.3 L55.6,87.3 L54.6,85.9 L51.8,87.0 L50.1,87.0 L49.9,85.4 L50.4,84.3 L48.6,83.4 L45.0,83.9 L42.6,82.6 L40.7,81.9 L40.7,80.4 L38.6,79.2 L39.6,77.6 L41.9,76.0 L42.9,74.6 L45.1,74.4 L47.0,74.8 L49.3,73.5 L51.3,73.7 L53.4,72.9 L52.9,71.6 L51.3,71.1 L53.4,70.0 L51.7,70.1 L48.7,70.7 L47.9,71.3 L45.7,70.7 L41.8,71.0 L37.7,70.3 L36.5,69.2 L33.0,67.6 L36.9,66.4 L43.1,65.1 L45.4,65.1 L45.0,66.4 L50.9,66.3 L48.6,64.6 L45.2,63.6 L43.3,62.2 L40.6,61.0 L36.8,60.1 L38.3,58.7 L43.3,58.6 L46.8,57.3 L47.4,56.0 L50.3,54.6 L53.0,54.3 L58.2,53.1 L60.8,53.3 L65.1,51.8 L69.3,52.4 L71.3,53.6 L72.5,53.1 L77.2,53.2 L77.0,53.9 L81.3,54.4 L84.1,54.1 L90.0,55.0 L95.3,55.2 L97.4,55.6 L101.1,55.1 L105.4,56.0 L108.4,56.4 L113.6,57.0 L117.9,58.4 L120.8,58.6 L123.3,57.5 L126.6,56.6 L130.8,56.9 L134.9,55.7 L139.5,55.0 L141.4,56.2 L143.4,55.5 L144.1,54.2 L146.0,54.5 L150.7,57.0 L154.4,55.1 L154.8,57.2 L158.2,56.8 L159.2,56.0 L162.6,56.1 L166.8,57.3 L173.3,58.3 L177.2,58.8 L179.9,58.6 L183.6,60.0 L179.7,61.4 L184.7,62.0 L192.2,61.6 L194.6,61.2 L197.6,62.8 L200.6,61.4 L197.7,60.2 L199.5,59.3 L202.9,59.2 L205.1,58.9 L207.4,59.6 L210.2,61.1 L213.3,60.8 L218.2,62.1 L222.5,61.6 L226.5,61.7 L226.2,60.0 L228.7,59.5 L233.0,60.4 L233.0,63.1 L234.8,60.9 L237.0,60.9 L238.2,58.1 L235.3,56.4 L232.0,55.3 L232.2,52.2 L235.5,50.2 L239.2,50.7 L242.0,51.9 L245.8,55.0 L243.3,56.4 L248.5,57.0 Z"/>
+  <path d="M182.9,46.9 L181.5,48.2 L187.7,47.3 L191.5,48.7 L194.7,47.3 L197.2,48.2 L199.5,51.0 L200.9,49.8 L198.9,47.0 L201.3,46.6 L204.1,47.0 L207.2,48.1 L209.0,50.8 L209.8,52.8 L214.5,54.2 L219.5,55.5 L219.2,56.7 L214.6,56.9 L216.4,58.0 L215.5,59.0 L210.4,58.6 L205.7,57.8 L202.4,58.0 L197.2,58.9 L189.0,59.4 L185.2,59.6 L183.7,58.3 L179.9,57.6 L177.5,57.9 L174.1,55.7 L175.9,55.4 L180.2,54.9 L184.1,55.0 L187.7,54.5 L182.4,53.9 L176.4,54.1 L172.5,54.1 L171.0,53.0 L177.5,51.9 L173.2,52.0 L168.3,51.2 L170.7,49.1 L172.6,48.0 L180.0,46.4 L182.9,46.9 Z"/>
+  <path d="M209.7,46.1 L207.3,47.9 L202.9,45.9 L203.9,45.6 L207.6,45.4 L209.7,46.1 Z"/>
+  <path d="M287.9,46.9 L288.2,47.7 L285.2,47.6 L282.2,47.6 L279.2,47.9 L278.4,47.8 L275.3,46.3 L275.5,45.3 L276.8,45.1 L283.2,45.4 L287.9,46.9 Z"/>
+  <path d="M259.6,46.8 L261.7,48.5 L264.3,46.3 L271.3,45.1 L276.1,48.0 L275.7,49.8 L281.2,49.0 L283.8,47.9 L290.0,49.3 L293.8,50.6 L294.2,51.9 L299.3,51.2 L302.2,53.0 L308.9,54.1 L311.3,55.2 L314.0,57.8 L308.9,59.1 L315.4,60.9 L319.8,61.5 L323.8,64.1 L328.2,64.3 L327.3,66.2 L322.5,69.4 L319.0,68.3 L314.7,65.6 L311.1,65.9 L310.7,67.5 L313.6,69.1 L317.4,70.4 L318.6,71.2 L320.4,73.9 L319.4,75.9 L315.9,75.2 L308.9,72.9 L312.9,75.3 L315.8,77.0 L316.2,78.0 L308.7,76.9 L302.7,75.2 L299.3,73.9 L300.3,73.1 L296.2,71.7 L292.1,70.3 L292.2,71.1 L284.1,71.6 L281.8,70.6 L283.6,68.6 L288.8,68.5 L294.6,68.2 L293.6,67.2 L294.6,65.8 L298.2,63.1 L297.4,61.9 L296.4,60.9 L292.1,59.6 L286.5,58.6 L288.3,57.9 L285.3,56.2 L282.9,56.0 L280.7,55.1 L279.2,55.9 L274.2,56.3 L264.0,55.7 L258.2,54.8 L253.7,54.4 L251.4,53.4 L254.3,52.2 L250.3,52.2 L249.4,49.3 L251.6,46.9 L254.4,45.7 L261.6,45.0 L259.6,46.8 Z"/>
+  <path d="M221.2,44.9 L224.5,45.5 L229.5,45.1 L230.2,45.9 L227.6,47.2 L231.8,48.4 L231.3,50.9 L226.8,52.0 L224.1,51.8 L222.2,50.7 L215.3,48.6 L215.3,47.7 L221.0,48.0 L217.9,46.2 L221.2,44.9 Z"/>
+  <path d="M898.9,46.6 L894.7,46.7 L889.0,46.3 L888.5,46.2 L891.1,45.1 L894.6,44.8 L898.6,45.9 L898.9,46.6 Z"/>
+  <path d="M241.1,47.9 L238.1,49.9 L235.0,49.8 L233.2,47.4 L233.3,46.0 L234.7,44.8 L237.5,44.1 L243.3,44.2 L248.6,44.8 L244.4,47.3 L241.1,47.9 Z"/>
+  <path d="M165.4,51.7 L158.1,53.1 L156.6,51.8 L150.2,50.4 L151.1,49.5 L153.3,47.2 L155.7,45.3 L153.0,43.6 L162.4,43.2 L166.4,43.8 L173.5,43.9 L176.2,44.7 L179.1,45.9 L175.6,46.6 L168.8,48.6 L165.4,50.5 L165.4,51.7 Z"/>
+  <path d="M918.7,41.4 L915.5,42.5 L911.0,42.3 L905.9,41.2 L906.5,40.3 L911.7,40.7 L918.7,41.4 Z"/>
+  <path d="M240.0,41.7 L238.5,42.8 L234.4,42.6 L231.1,41.9 L232.5,40.6 L236.5,39.9 L239.0,40.8 L240.0,41.7 Z"/>
+  <path d="M903.0,40.1 L900.8,42.2 L890.6,42.1 L886.0,42.7 L880.5,40.9 L882.0,39.0 L885.6,38.5 L893.0,38.6 L903.0,40.1 Z"/>
+  <path d="M226.4,36.9 L228.5,38.2 L228.6,39.6 L227.3,41.7 L222.8,42.0 L219.8,41.5 L219.8,39.9 L215.3,40.1 L215.1,38.0 L218.1,38.0 L222.3,37.1 L226.2,37.3 L226.4,36.9 Z"/>
+  <path d="M199.4,38.3 L200.5,39.3 L203.0,38.9 L205.9,39.0 L206.4,40.3 L204.7,41.7 L195.3,42.1 L188.3,43.3 L184.0,43.4 L183.7,42.4 L189.5,41.2 L176.9,41.5 L173.0,41.0 L176.8,38.3 L179.4,37.6 L187.3,38.5 L192.2,40.1 L197.0,40.4 L193.1,37.7 L195.6,36.7 L198.5,37.0 L199.4,38.3 Z"/>
+  <path d="M659.8,53.6 L658.2,53.8 L649.1,53.4 L648.4,52.2 L643.3,51.5 L642.9,50.0 L645.8,49.4 L645.7,47.8 L651.2,45.5 L648.6,45.1 L655.3,42.7 L654.5,41.4 L660.7,40.0 L669.9,38.2 L679.2,37.7 L683.9,36.6 L689.3,36.3 L691.3,37.4 L689.4,38.2 L679.5,39.6 L671.1,40.9 L662.4,43.6 L658.3,46.3 L653.9,49.0 L654.5,51.3 L659.8,53.6 Z"/>
+  <path d="M237.0,35.8 L240.1,36.7 L245.5,36.7 L247.9,37.6 L247.3,38.7 L250.5,39.3 L252.3,40.0 L256.0,40.1 L260.1,40.3 L264.5,39.7 L270.1,39.5 L274.6,39.7 L277.6,40.7 L278.2,41.9 L276.5,42.6 L272.4,43.2 L268.8,42.9 L260.8,43.3 L255.1,43.4 L250.7,43.0 L243.3,42.1 L242.3,40.6 L242.0,39.2 L239.2,38.0 L233.4,37.7 L230.2,36.8 L231.3,35.7 L237.0,35.8 Z"/>
+  <path d="M177.2,34.3 L176.8,36.5 L174.7,37.4 L172.1,37.6 L166.9,38.7 L162.5,39.2 L158.7,38.6 L163.5,36.5 L169.2,34.7 L173.4,34.7 L177.2,34.3 Z"/>
+  <path d="M239.3,34.7 L238.1,34.7 L232.9,34.6 L232.1,33.8 L237.7,33.8 L239.7,34.3 L239.3,34.7 Z"/>
+  <path d="M193.9,34.2 L188.7,35.0 L184.6,34.1 L186.9,33.2 L190.9,32.9 L194.9,33.3 L193.9,34.2 Z"/>
+  <path d="M568.7,33.7 L562.5,34.9 L557.6,34.2 L559.5,33.5 L557.8,32.6 L563.6,32.1 L564.7,33.1 L568.7,33.7 Z"/>
+  <path d="M195.4,31.7 L192.0,32.2 L187.4,32.2 L187.4,31.8 L190.3,31.0 L191.8,31.1 L195.4,31.7 Z"/>
+  <path d="M233.8,33.2 L229.7,33.8 L227.4,33.1 L226.2,32.1 L226.0,30.9 L229.6,31.0 L231.2,31.2 L234.6,32.2 L233.8,33.2 Z"/>
+  <path d="M222.1,32.4 L223.1,33.6 L218.6,33.3 L214.0,32.4 L207.8,32.3 L210.5,31.5 L207.2,30.8 L207.0,29.7 L212.4,30.1 L219.9,31.1 L222.1,32.4 Z"/>
+  <path d="M791.9,32.5 L776.2,33.6 L781.3,29.9 L783.6,29.6 L785.7,29.8 L792.7,31.4 L791.9,32.5 Z"/>
+  <path d="M550.7,28.6 L559.8,30.7 L552.9,31.8 L551.3,33.8 L548.9,34.3 L547.6,36.6 L544.2,36.8 L538.2,35.1 L540.7,34.1 L536.6,33.3 L531.2,30.9 L529.0,28.7 L536.6,27.7 L538.1,28.7 L542.1,28.7 L543.1,27.7 L547.2,27.6 L550.7,28.6 Z"/>
+  <path d="M570.7,26.6 L576.1,27.6 L572.0,29.1 L564.0,29.4 L555.8,29.0 L555.3,28.2 L551.3,28.2 L548.2,26.9 L556.8,26.1 L560.9,26.8 L563.7,26.0 L570.7,26.6 Z"/>
+  <path d="M642.0,26.3 L638.3,26.6 L635.8,26.8 L635.4,27.3 L632.2,27.8 L629.2,27.1 L630.8,26.2 L624.6,26.1 L630.0,25.6 L634.2,25.6 L634.8,26.4 L636.4,25.7 L639.0,25.2 L643.1,25.8 L642.0,26.3 Z"/>
+  <path d="M777.6,30.9 L771.5,31.2 L763.8,30.4 L759.2,29.4 L757.1,27.4 L753.3,26.8 L760.5,24.9 L766.5,24.3 L771.9,25.7 L778.3,28.4 L777.6,30.9 Z"/>
+  <path d="M258.3,28.7 L261.6,29.6 L257.8,30.4 L252.7,32.5 L247.8,32.7 L242.0,32.4 L239.0,31.2 L239.1,30.2 L241.3,29.5 L236.2,29.5 L233.1,28.6 L231.4,27.3 L233.3,26.1 L235.2,25.3 L238.1,25.1 L236.8,24.4 L243.3,24.3 L246.9,25.8 L251.5,26.4 L256.1,26.9 L258.3,28.7 Z"/>
+  <path d="M309.7,19.1 L317.1,19.4 L323.1,19.7 L328.2,20.5 L328.1,21.2 L321.3,22.4 L314.6,23.0 L312.1,23.6 L318.1,23.6 L311.6,25.3 L307.0,26.1 L302.3,28.3 L296.5,28.8 L294.8,29.4 L286.4,29.7 L290.2,30.0 L288.3,30.5 L290.6,31.9 L287.9,32.8 L283.6,33.6 L282.3,34.7 L278.4,35.5 L278.8,36.2 L283.6,36.0 L283.6,36.7 L276.2,38.4 L269.0,37.6 L260.8,38.1 L256.7,37.7 L251.4,37.6 L251.1,36.2 L256.2,35.6 L254.8,33.6 L256.5,33.4 L264.0,34.6 L260.2,32.8 L255.7,32.3 L257.9,31.2 L262.8,30.6 L263.6,29.6 L259.7,28.5 L258.5,27.1 L266.1,27.2 L268.3,27.5 L272.6,26.5 L266.4,26.2 L256.7,26.3 L251.8,25.4 L249.4,24.3 L246.2,23.5 L245.6,22.5 L249.7,22.0 L253.0,21.9 L258.4,21.4 L262.5,20.4 L265.9,20.6 L268.9,21.3 L271.1,19.8 L274.7,19.4 L279.7,19.1 L288.2,19.0 L289.7,19.3 L297.7,18.8 L303.7,19.0 L309.7,19.1 Z"/>
+  <path d="M424.7,18.0 L442.1,20.2 L437.0,21.3 L426.3,21.4 L411.4,21.7 L412.8,22.2 L422.6,21.9 L431.0,22.8 L436.4,22.0 L438.7,23.0 L435.6,24.6 L442.7,23.5 L456.2,22.5 L464.5,23.0 L466.1,24.2 L454.8,26.2 L453.2,26.8 L444.3,27.3 L450.7,27.4 L447.5,29.4 L445.3,31.2 L445.4,34.3 L448.7,36.2 L444.3,36.3 L439.8,37.1 L444.9,38.6 L445.6,41.0 L442.6,41.2 L446.2,43.6 L440.0,43.8 L443.2,45.0 L442.3,45.9 L438.4,46.4 L434.5,46.4 L438.0,48.3 L438.1,49.5 L432.6,48.3 L431.1,49.1 L434.9,49.8 L438.5,51.5 L439.6,53.7 L434.6,54.2 L432.5,53.2 L429.0,51.6 L430.0,53.5 L426.8,54.9 L434.1,55.0 L437.9,55.2 L430.5,57.6 L422.9,59.8 L414.8,60.8 L411.7,60.8 L408.9,61.8 L405.0,64.8 L399.0,66.7 L397.1,66.8 L393.4,67.5 L389.4,68.2 L387.0,69.9 L387.0,71.8 L385.6,73.7 L381.1,75.9 L382.2,78.1 L380.9,80.3 L379.5,83.1 L375.6,83.2 L371.5,81.0 L365.9,80.9 L363.2,79.4 L361.4,76.7 L356.6,73.3 L355.2,71.4 L354.8,69.0 L350.9,66.4 L351.9,64.3 L350.1,63.4 L352.8,60.1 L357.0,59.1 L358.1,57.9 L358.7,55.8 L355.5,56.7 L354.0,57.2 L351.5,57.5 L348.1,56.6 L347.9,54.8 L349.0,53.3 L351.6,53.2 L357.3,54.0 L352.5,52.2 L350.0,51.3 L347.2,51.6 L344.9,51.0 L348.0,48.4 L346.3,47.3 L344.1,45.4 L340.8,42.5 L337.2,41.4 L337.3,40.2 L329.8,38.6 L323.9,38.4 L316.5,38.5 L309.7,38.7 L306.5,37.8 L301.7,36.1 L309.0,35.2 L314.5,35.1 L302.7,34.3 L296.4,33.2 L296.8,32.1 L307.3,30.8 L317.5,29.5 L318.5,28.5 L311.0,27.5 L313.5,26.3 L323.1,24.4 L327.1,24.1 L326.0,22.9 L332.6,22.1 L341.1,21.7 L349.6,21.7 L352.7,22.5 L360.0,21.0 L366.7,22.0 L370.6,22.3 L376.3,23.2 L369.7,21.7 L370.1,20.5 L379.4,18.8 L389.2,18.9 L392.7,17.9 L402.5,17.7 L424.7,18.0 Z"/>
+        </g>
+
+        <!-- constellation lines removed -->
+
+        <!-- ============ CULTURE MARKERS ============ -->
+
+        <g class="mpin"
+           onmouseenter="mapPinEnter(event,'polynesia')"
+           onmouseleave="mapPinLeave()"
+           onclick="mapPinClick(event,'polynesia')"
+           style="cursor:pointer;pointer-events:all">
+          <circle cx="69" cy="278" r="18" fill="none" stroke="#2dd4bf" stroke-width="0.9"
+            style="animation:mapRing1 3s ease-in-out 0.0s infinite"/>
+          <circle cx="69" cy="278" r="28" fill="none" stroke="#2dd4bf" stroke-width="0.4"
+            style="animation:mapRing2 3s ease-in-out 0.0s infinite"/>
+          <circle cx="69" cy="278" r="5.5" fill="#2dd4bf"/>
+          <circle cx="67.8" cy="276.8" r="1.8" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="69" cy="278" r="34" fill="transparent"/>
+        </g>
+
+        <g class="mpin"
+           onmouseenter="mapPinEnter(event,'maya')"
+           onmouseleave="mapPinLeave()"
+           onclick="mapPinClick(event,'maya')"
+           style="cursor:pointer;pointer-events:all">
+          <circle cx="251" cy="210" r="18" fill="none" stroke="#4ade80" stroke-width="0.9"
+            style="animation:mapRing1 3s ease-in-out 0.5s infinite"/>
+          <circle cx="251" cy="210" r="28" fill="none" stroke="#4ade80" stroke-width="0.4"
+            style="animation:mapRing2 3s ease-in-out 0.5s infinite"/>
+          <circle cx="251" cy="210" r="5.5" fill="#4ade80"/>
+          <circle cx="249.8" cy="208.8" r="1.8" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="251" cy="210" r="34" fill="transparent"/>
+        </g>
+
+        <g class="mpin"
+           onmouseenter="mapPinEnter(event,'egypt')"
+           onmouseleave="mapPinLeave()"
+           onclick="mapPinClick(event,'egypt')"
+           style="cursor:pointer;pointer-events:all">
+          <circle cx="586" cy="175" r="18" fill="none" stroke="#fbbf24" stroke-width="0.9"
+            style="animation:mapRing1 3s ease-in-out 1.0s infinite"/>
+          <circle cx="586" cy="175" r="28" fill="none" stroke="#fbbf24" stroke-width="0.4"
+            style="animation:mapRing2 3s ease-in-out 1.0s infinite"/>
+          <circle cx="586" cy="175" r="5.5" fill="#fbbf24"/>
+          <circle cx="584.8" cy="173.8" r="1.8" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="586" cy="175" r="34" fill="transparent"/>
+        </g>
+
+        <g class="mpin"
+           onmouseenter="mapPinEnter(event,'babylon')"
+           onmouseleave="mapPinLeave()"
+           onclick="mapPinClick(event,'babylon')"
+           style="cursor:pointer;pointer-events:all">
+          <circle cx="623" cy="157" r="18" fill="none" stroke="#a78bfa" stroke-width="0.9"
+            style="animation:mapRing1 3s ease-in-out 1.5s infinite"/>
+          <circle cx="623" cy="157" r="28" fill="none" stroke="#a78bfa" stroke-width="0.4"
+            style="animation:mapRing2 3s ease-in-out 1.5s infinite"/>
+          <circle cx="623" cy="157" r="5.5" fill="#a78bfa"/>
+          <circle cx="621.8" cy="155.8" r="1.8" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="623" cy="157" r="34" fill="transparent"/>
+        </g>
+
+        <g class="mpin"
+           onmouseenter="mapPinEnter(event,'arab')"
+           onmouseleave="mapPinLeave()"
+           onclick="mapPinClick(event,'arab')"
+           style="cursor:pointer;pointer-events:all">
+          <circle cx="623" cy="137" r="18" fill="none" stroke="#60a5fa" stroke-width="0.9"
+            style="animation:mapRing1 3s ease-in-out 2.0s infinite"/>
+          <circle cx="623" cy="137" r="28" fill="none" stroke="#60a5fa" stroke-width="0.4"
+            style="animation:mapRing2 3s ease-in-out 2.0s infinite"/>
+          <circle cx="623" cy="137" r="5.5" fill="#60a5fa"/>
+          <circle cx="621.8" cy="135.8" r="1.8" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="623" cy="137" r="34" fill="transparent"/>
+        </g>
+
+        <g class="mpin"
+           onmouseenter="mapPinEnter(event,'india')"
+           onmouseleave="mapPinLeave()"
+           onclick="mapPinClick(event,'india')"
+           style="cursor:pointer;pointer-events:all">
+          <circle cx="719" cy="192" r="18" fill="none" stroke="#f87171" stroke-width="0.9"
+            style="animation:mapRing1 3s ease-in-out 2.5s infinite"/>
+          <circle cx="719" cy="192" r="28" fill="none" stroke="#f87171" stroke-width="0.4"
+            style="animation:mapRing2 3s ease-in-out 2.5s infinite"/>
+          <circle cx="719" cy="192" r="5.5" fill="#f87171"/>
+          <circle cx="717.8" cy="190.8" r="1.8" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="719" cy="192" r="34" fill="transparent"/>
+        </g>
+
+
+      </svg>
+    </div><!-- end map-svg-container -->
+
+    <p class="map-hint">Click any marker to explore that civilisation's astronomical legacy</p>
+  </div>
+</section>
+
+<script>
+/* ============================================================
+   MAP PIN INTERACTION — hover=tooltip, click=article
+============================================================ */
+const MAP_DATA = {
+  maya:      { region:'Central America · 250–900 CE', name:'Maya',          color:'#4ade80', desc:'They declared war by the stars — Venus was their god of conflict.' },
+  egypt:     { region:'Nile Valley · 3000–30 BCE',    name:'Ancient Egypt', color:'#fbbf24', desc:'The pyramids point to Orion. Sirius announced the Nile flood every year.' },
+  babylon:   { region:'Mesopotamia · 3000–300 BCE',   name:'Babylon',       color:'#a78bfa', desc:'They invented the zodiac, the 60-minute hour, and could predict eclipses centuries ahead.' },
+  arab:      { region:'Baghdad · 8th–13th Century',   name:'Arab Astronomy',color:'#60a5fa', desc:'The House of Wisdom — where Arabic scholars named the stars we still use today.' },
+  india:     { region:'India & China · 1500 BCE–600 CE', name:'India & China', color:'#f87171', desc:'Aryabhata calculated Earth rotation to within 0.009 seconds. Without a telescope.' },
+  polynesia: { region:'Pacific Ocean · 1000–1400 CE', name:'Polynesia',     color:'#2dd4bf', desc:'They crossed 10 million square miles of open ocean guided only by stars and waves.' }
+};
+
+function mapPinEnter(event, id){ /* cards always visible */ }
+function mapPinLeave(){ /* cards always visible */ }
+
+function mapPinClick(event, id){
+  event.stopPropagation();
+  openArticle(id);
+}
+
+// Draw connector lines from cards to map markers
+function drawConnectors(){
+  const container = document.getElementById('map-svg-container');
+  if(!container) return;
+  const rect = container.getBoundingClientRect();
+  const W = rect.width, H = rect.height;
+
+  document.querySelectorAll('.map-card').forEach(card => {
+    const pid = card.id.replace('mc-','');
+    const line = document.getElementById('conn-'+pid);
+    if(!line) return;
+
+    // Dot position in container pixels (SVG coords → pixels)
+    const cx = parseFloat(card.dataset.cx) / 1000 * W;
+    const cy = parseFloat(card.dataset.cy) / 500 * H;
+
+    // Card center position
+    const cr = card.getBoundingClientRect();
+    const cardCx = cr.left - rect.left + cr.width/2;
+    const cardCy = cr.top  - rect.top  + cr.height/2;
+
+    // Find closest point on card edge to dot
+    const dx = cx - cardCx, dy = cy - cardCy;
+    const angle = Math.atan2(dy, dx);
+    const edgeX = cardCx + Math.cos(angle) * (cr.width/2 + 2);
+    const edgeY = cardCy + Math.sin(angle) * (cr.height/2 + 2);
+
+    line.setAttribute('x1', cx.toFixed(1));
+    line.setAttribute('y1', cy.toFixed(1));
+    line.setAttribute('x2', edgeX.toFixed(1));
+    line.setAttribute('y2', edgeY.toFixed(1));
+  });
+}
+
+// Run after fonts/layout settle
+window.addEventListener('load', () => { setTimeout(drawConnectors, 200); });
+window.addEventListener('resize', drawConnectors);
+</script>
+
+<!-- ============================================================
+     CULTURES GRID
+============================================================ -->
+<section id="cultures" class="section-wrap">
+  <div class="cultures-header">
+    <p class="eyebrow reveal">Six Civilisations</p>
+    <h2 class="section-title reveal reveal-delay-1">Windows to the<br><em>Ancient Sky</em></h2>
+    <p class="reveal reveal-delay-2">Select a civilisation to explore their astronomical achievements</p>
+  </div>
+
+  <div class="cultures-grid">
+
+    <!-- MAYA -->
+    <div class="culture-card reveal reveal-delay-1" onclick="openArticle('maya')"
+         style="--card-accent:#4ade80;--card-glow:rgba(74,222,128,0.15);background:linear-gradient(135deg,#0a1f12,#081a0e)">
+      <svg class="card-pattern" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="100" cy="100" r="80" fill="none" stroke="#4ade80" stroke-width="1"/>
+        <circle cx="100" cy="100" r="50" fill="none" stroke="#4ade80" stroke-width="1"/>
+        <circle cx="100" cy="100" r="20" fill="none" stroke="#4ade80" stroke-width="1"/>
+        <line x1="100" y1="20" x2="100" y2="180" stroke="#4ade80" stroke-width="0.5"/>
+        <line x1="20" y1="100" x2="180" y2="100" stroke="#4ade80" stroke-width="0.5"/>
+        <line x1="43" y1="43" x2="157" y2="157" stroke="#4ade80" stroke-width="0.5"/>
+        <line x1="157" y1="43" x2="43" y2="157" stroke="#4ade80" stroke-width="0.5"/>
+      </svg>
+      <div class="card-icon">⊕</div>
+      <div class="card-region">Central America · 250–900 CE</div>
+      <div class="card-name">Maya</div>
+      <div class="card-tagline">They declared war by the stars — Venus was their god of conflict</div>
+      <div class="card-era">Tzolkin · Haab · Dresden Codex</div>
+      <div class="card-explore">Explore culture</div>
+    </div>
+
+    <!-- ARAB -->
+    <div class="culture-card reveal reveal-delay-2" onclick="openArticle('arab')"
+         style="--card-accent:#60a5fa;--card-glow:rgba(96,165,250,0.15);background:linear-gradient(135deg,#0a1220,#081525)">
+      <svg class="card-pattern" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="100" cy="100" r="80" fill="none" stroke="#60a5fa" stroke-width="0.8"/>
+        <circle cx="100" cy="100" r="60" fill="none" stroke="#60a5fa" stroke-width="0.8" stroke-dasharray="5 5"/>
+        <circle cx="100" cy="100" r="40" fill="none" stroke="#60a5fa" stroke-width="0.8"/>
+        <circle cx="100" cy="40" r="4" fill="#60a5fa" opacity="0.6"/>
+        <circle cx="155" cy="68" r="3" fill="#60a5fa" opacity="0.5"/>
+        <circle cx="155" cy="132" r="4" fill="#60a5fa" opacity="0.6"/>
+        <circle cx="100" cy="160" r="3" fill="#60a5fa" opacity="0.4"/>
+        <circle cx="45" cy="132" r="4" fill="#60a5fa" opacity="0.5"/>
+        <circle cx="45" cy="68" r="3" fill="#60a5fa" opacity="0.4"/>
+      </svg>
+      <div class="card-icon">✧</div>
+      <div class="card-region">Baghdad · 8th–13th Century</div>
+      <div class="card-name">Arab Astronomy</div>
+      <div class="card-tagline">The Golden Age of Islam gave us the names of the stars we still use today</div>
+      <div class="card-era">House of Wisdom · Altair · Betelgeuse · Rigel</div>
+      <div class="card-explore">Explore culture</div>
+    </div>
+
+    <!-- EGYPT -->
+    <div class="culture-card reveal reveal-delay-3" onclick="openArticle('egypt')"
+         style="--card-accent:#fbbf24;--card-glow:rgba(251,191,36,0.15);background:linear-gradient(135deg,#1a1208,#120e05)">
+      <svg class="card-pattern" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="100,20 160,160 40,160" fill="none" stroke="#fbbf24" stroke-width="1"/>
+        <polygon points="100,50 145,160 55,160" fill="none" stroke="#fbbf24" stroke-width="0.5"/>
+        <line x1="100" y1="20" x2="100" y2="160" stroke="#fbbf24" stroke-width="0.5" stroke-dasharray="4 4"/>
+        <circle cx="100" cy="85" r="8" fill="none" stroke="#fbbf24" stroke-width="1"/>
+        <circle cx="82" cy="42" r="3" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="100" cy="35" r="4" fill="#fbbf24" opacity="0.9"/>
+        <circle cx="118" cy="42" r="3" fill="#fbbf24" opacity="0.8"/>
+      </svg>
+      <div class="card-icon">△</div>
+      <div class="card-region">Nile Valley · 3000–30 BCE</div>
+      <div class="card-name">Ancient Egypt</div>
+      <div class="card-tagline">The pyramids are aligned to stars — the sky was their map to eternity</div>
+      <div class="card-era">Sirius · Orion · Duat · Decans</div>
+      <div class="card-explore">Explore culture</div>
+    </div>
+
+    <!-- INDIA/CHINA -->
+    <div class="culture-card reveal reveal-delay-4" onclick="openArticle('india')"
+         style="--card-accent:#f87171;--card-glow:rgba(248,113,113,0.15);background:linear-gradient(135deg,#1a0e0e,#120808)">
+      <svg class="card-pattern" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="100" cy="100" r="75" fill="none" stroke="#f87171" stroke-width="0.8"/>
+        <!-- 27 Nakshatra divisions -->
+        <g stroke="#f87171" stroke-width="0.5" opacity="0.7">
+          <line x1="100" y1="25" x2="100" y2="40"/>
+          <line x1="116" y1="26" x2="114" y2="41"/>
+          <line x1="131" y1="32" x2="127" y2="46"/>
+          <line x1="145" y1="42" x2="139" y2="54"/>
+          <line x1="155" y1="55" x2="147" y2="65"/>
+          <line x1="162" y1="70" x2="152" y2="78"/>
+          <line x1="165" y1="86" x2="155" y2="90"/>
+          <line x1="165" y1="103" x2="154" y2="103"/>
+          <line x1="160" y1="119" x2="150" y2="116"/>
+        </g>
+        <circle cx="100" cy="100" r="25" fill="none" stroke="#f87171" stroke-width="1"/>
+        <circle cx="100" cy="55" r="5" fill="#f87171" opacity="0.6"/>
+      </svg>
+      <div class="card-icon">☽</div>
+      <div class="card-region">India &amp; China · 1500 BCE – 600 CE</div>
+      <div class="card-name">India &amp; China</div>
+      <div class="card-tagline">Aryabhata calculated Earth's rotation to within 0.009 seconds — without a telescope</div>
+      <div class="card-era">Jyotisha · Nakshatras · 28 Xiu · Aryabhata</div>
+      <div class="card-explore">Explore culture</div>
+    </div>
+
+    <!-- POLYNESIA -->
+    <div class="culture-card reveal reveal-delay-5" onclick="openArticle('polynesia')"
+         style="--card-accent:#2dd4bf;--card-glow:rgba(45,212,191,0.15);background:linear-gradient(135deg,#071818,#051212)">
+      <svg class="card-pattern" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Star compass rose -->
+        <circle cx="100" cy="100" r="75" fill="none" stroke="#2dd4bf" stroke-width="0.5" stroke-dasharray="3 3"/>
+        <line x1="100" y1="25" x2="100" y2="175" stroke="#2dd4bf" stroke-width="0.8"/>
+        <line x1="25" y1="100" x2="175" y2="100" stroke="#2dd4bf" stroke-width="0.8"/>
+        <line x1="47" y1="47" x2="153" y2="153" stroke="#2dd4bf" stroke-width="0.5"/>
+        <line x1="153" y1="47" x2="47" y2="153" stroke="#2dd4bf" stroke-width="0.5"/>
+        <line x1="73" y1="27" x2="127" y2="173" stroke="#2dd4bf" stroke-width="0.3"/>
+        <line x1="27" y1="73" x2="173" y2="127" stroke="#2dd4bf" stroke-width="0.3"/>
+        <line x1="27" y1="127" x2="173" y2="73" stroke="#2dd4bf" stroke-width="0.3"/>
+        <line x1="127" y1="27" x2="73" y2="173" stroke="#2dd4bf" stroke-width="0.3"/>
+        <circle cx="100" cy="100" r="12" fill="none" stroke="#2dd4bf" stroke-width="1"/>
+        <polygon points="100,40 105,95 100,110 95,95" fill="#2dd4bf" opacity="0.5"/>
+      </svg>
+      <div class="card-icon">⛵</div>
+      <div class="card-region">Pacific Ocean · 1000–1400 CE</div>
+      <div class="card-name">Polynesia</div>
+      <div class="card-tagline">They crossed 10 million square miles of open ocean guided only by stars and waves</div>
+      <div class="card-era">Star Compass · Hōkūle'a · Wayfinding</div>
+      <div class="card-explore">Explore culture</div>
+    </div>
+
+    <!-- BABYLON -->
+    <div class="culture-card reveal reveal-delay-6" onclick="openArticle('babylon')"
+         style="--card-accent:#a78bfa;--card-glow:rgba(167,139,250,0.15);background:linear-gradient(135deg,#12101a,#0e0c18)">
+      <svg class="card-pattern" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="100" cy="100" r="75" fill="none" stroke="#a78bfa" stroke-width="0.8"/>
+        <circle cx="100" cy="100" r="55" fill="none" stroke="#a78bfa" stroke-width="0.5"/>
+        <circle cx="100" cy="100" r="35" fill="none" stroke="#a78bfa" stroke-width="0.8"/>
+        <!-- 12 zodiac positions -->
+        <circle cx="100" cy="25" r="3" fill="#a78bfa" opacity="0.7"/>
+        <circle cx="137" cy="37" r="2.5" fill="#a78bfa" opacity="0.6"/>
+        <circle cx="163" cy="62" r="2.5" fill="#a78bfa" opacity="0.6"/>
+        <circle cx="175" cy="100" r="3" fill="#a78bfa" opacity="0.7"/>
+        <circle cx="163" cy="138" r="2.5" fill="#a78bfa" opacity="0.6"/>
+        <circle cx="137" cy="163" r="2.5" fill="#a78bfa" opacity="0.6"/>
+        <circle cx="100" cy="175" r="3" fill="#a78bfa" opacity="0.7"/>
+        <circle cx="63" cy="163" r="2.5" fill="#a78bfa" opacity="0.6"/>
+        <circle cx="37" cy="138" r="2.5" fill="#a78bfa" opacity="0.6"/>
+        <circle cx="25" cy="100" r="3" fill="#a78bfa" opacity="0.7"/>
+        <circle cx="37" cy="62" r="2.5" fill="#a78bfa" opacity="0.6"/>
+        <circle cx="63" cy="37" r="2.5" fill="#a78bfa" opacity="0.6"/>
+      </svg>
+      <div class="card-icon">⌘</div>
+      <div class="card-region">Mesopotamia · 3000–300 BCE</div>
+      <div class="card-name">Babylon</div>
+      <div class="card-tagline">They invented the zodiac, the 60-minute hour, and predicted eclipses with a cycle still used today</div>
+      <div class="card-era">Zodiac · Saros Cycle · MUL.APIN · Base-60</div>
+      <div class="card-explore">Explore culture</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     QUIZ SECTION
+============================================================ -->
+<section id="quiz-section" class="section-wrap">
+  <div class="quiz-inner">
+    <div class="quiz-stars-row">
+      <div class="quiz-star-dot"></div>
+      <div class="quiz-star-dot"></div>
+      <div class="quiz-star-dot"></div>
+      <div class="quiz-star-dot"></div>
+      <div class="quiz-star-dot"></div>
+      <div class="quiz-star-dot"></div>
+    </div>
+    <p class="eyebrow reveal" style="margin-bottom:1rem">You've Explored the Sky</p>
+    <h2 class="quiz-section-title reveal reveal-delay-1">
+      Now <em>Prove</em> Your<br>Cosmic Knowledge
+    </h2>
+    <p class="quiz-section-sub reveal reveal-delay-2">
+      Five questions. Six civilisations. One AI examiner who will ask, listen, and judge.
+      Answer by voice or text — the stars are watching.
+    </p>
+    <button class="quiz-start-btn reveal reveal-delay-3" onclick="alert('Quiz coming soon! The AI quiz engine will be integrated here.')">
+      ✦ Begin the Quiz
+    </button>
+    <div class="quiz-stats reveal reveal-delay-4">
+      <div class="quiz-stat">
+        <span class="quiz-stat-n">6</span>
+        <span class="quiz-stat-l">Civilisations</span>
+      </div>
+      <div class="quiz-stat">
+        <span class="quiz-stat-n">5</span>
+        <span class="quiz-stat-l">Questions</span>
+      </div>
+      <div class="quiz-stat">
+        <span class="quiz-stat-n">500</span>
+        <span class="quiz-stat-l">Max Score</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LEADERBOARD SECTION -->
+<style>
+/* LEADERBOARD SECTION */
+#leaderboard-section {
+  padding: 6rem 2rem 8rem;
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+}
+.lb-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+}
+.lb-header {
+  margin-bottom: 3rem;
+}
+.lb-table {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.lb-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.lb-row:last-child { border-bottom: none; }
+.lb-row:hover { background: rgba(255,255,255,0.03); }
+.lb-rank {
+  font-family: var(--ff-ui);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--text-lo);
+  width: 2.5rem;
+  text-align: left;
+  flex-shrink: 0;
+}
+.lb-rank.gold   { color: #f4d03f; font-size: 1rem; }
+.lb-rank.silver { color: #bdc3c7; font-size: 1rem; }
+.lb-rank.bronze { color: #cd853f; font-size: 1rem; }
+.lb-name {
+  font-family: var(--ff-ui);
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--text-hi);
+  flex: 1;
+  text-align: left;
+  padding: 0 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lb-score {
+  font-family: var(--ff-head);
+  font-size: 1.1rem;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.lb-date {
+  font-family: var(--ff-ui);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--text-lo);
+  flex-shrink: 0;
+  margin-left: 1rem;
+  width: 4rem;
+  text-align: right;
+}
+.lb-empty {
+  padding: 3rem 2rem;
+  font-family: var(--ff-body);
+  font-style: italic;
+  color: var(--text-lo);
+  font-size: 1rem;
+}
+</style>
+
+<section id="leaderboard-section" class="section-wrap">
+  <div class="lb-inner">
+    <div class="lb-header">
+      <p class="eyebrow reveal">Hall of Fame</p>
+      <h2 class="section-title reveal reveal-delay-1">Top <em>Star Readers</em></h2>
+      <p class="reveal reveal-delay-2" style="font-family:var(--ff-body);font-style:italic;color:var(--text-mid);font-size:1.1rem;margin:1rem auto 0;max-width:450px">The greatest minds who dared to answer what the ancient sky was saying.</p>
+    </div>
+    <div class="lb-table reveal reveal-delay-3" id="main-leaderboard">
+      <div class="lb-empty">No scores yet — be the first to take the quiz!</div>
+    </div>
+    <button onclick="document.querySelector('.quiz-start-btn').click()" class="reveal reveal-delay-4" style="
+      display:inline-flex;align-items:center;gap:0.6rem;
+      padding:0.8rem 2rem;
+      font-family:var(--ff-ui);font-size:0.8rem;letter-spacing:0.15em;text-transform:uppercase;
+      color:var(--void);background:var(--gold);border-radius:2px;border:none;cursor:pointer;
+      box-shadow:0 0 30px var(--gold-glow);transition:all 0.3s;
+    " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+      Claim Your Place ✦
+    </button>
+  </div>
+</section>
+
+<!-- ============================================================
+     ARTICLE OVERLAY
+============================================================ -->
+<div id="article-overlay">
+  <div class="article-backdrop" onclick="closeArticle()"></div>
+  <button class="article-close" onclick="closeArticle()">✕</button>
+  <div class="article-panel" id="article-panel">
+    <div class="article-viz-wrap">
+      <canvas class="article-viz-canvas" id="article-viz" width="680" height="200"></canvas>
+      <div class="article-viz-overlay"></div>
+    </div>
+    <div class="article-body" id="article-body">
+      <!-- dynamically filled -->
+    </div>
+    <div class="article-footer">
+      <button class="article-quiz-btn" onclick="closeArticle();document.getElementById('quiz-section').scrollIntoView({behavior:'smooth'})">
+        Take the Quiz →
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CULTURE DATA
+============================================================ */
+const CULTURES = {
+  maya: {
+    label:'Maya Civilisation',
+    title:'Venus & the Calendar of War',
+    subtitle:'Central America · ~250–900 CE',
+    accent:'#4ade80',
+    paragraphs:[
+      'Imagine launching a war not because of politics, but because a planet told you to. For the ancient Maya, Venus was the most dangerous object in the sky — a blazing signal that decided when blood would be spilled.',
+      'The Maya tracked Venus with astonishing precision. They calculated its synodic cycle at exactly 584 days — the modern accepted value is 583.92 days. Without telescopes or metal tools, they achieved an error of less than two hours over a full cycle. Venus was so important they gave it a name reserved for greatness: Chak Ek\', meaning "Great Star."',
+      'Their observations were recorded in the Dresden Codex, one of only four surviving Maya books. Pages 24 and 46–50 contain Venus tables tracking 65 complete Venus cycles — a span of 37,960 days. That number divides perfectly by 584 (the Venus cycle), by 260 (the sacred Tzolkin calendar), and by 365 (the solar Haab calendar).',
+      'The Maya also independently invented the concept of zero, centuries before it appeared in Europe, making their calendar mathematics among the most sophisticated of the ancient world.'
+    ],
+    facts:[
+      {n:'584', l:'Days in Venus cycle (calculated)'},
+      {n:'37,960', l:'Days tracked in the Dresden Codex'},
+      {n:'3', l:'Interlocking calendars (Tzolkin, Haab, Long Count)'},
+      {n:'3114 BCE', l:'Start date of the Long Count calendar'}
+    ],
+    didYouKnow:'The number 37,960 in the Dresden Codex is simultaneously divisible by 584, 260, and 365 — linking the Venus cycle, the sacred calendar, and the solar calendar in one number. Achieved without calculators, telescopes, or contact with any other civilisation\'s mathematics.'
+  },
+  arab: {
+    label:'Islamic Golden Age',
+    title:'Stars Named in Arabic',
+    subtitle:'Baghdad · 8th–13th Century CE',
+    accent:'#60a5fa',
+    paragraphs:[
+      'In the 9th century, while much of Europe struggled through the early Middle Ages, a building in Baghdad was changing the future of science. The House of Wisdom, established by Caliph al-Ma\'mun around 813 CE, became the greatest research centre on Earth. Al-Ma\'mun reportedly paid translators the weight of their completed books in gold.',
+      'Al-Battani (858–929 CE), working for over 40 years, calculated the length of the solar year as 365 days, 5 hours, 46 minutes, and 24 seconds — off by only 2 minutes and 22 seconds from the modern value, achieved entirely without a telescope. He replaced Ptolemy\'s clunky geometric methods with sine, cosine, and tangent functions. His tables were later used by Copernicus, Tycho Brahe, and Galileo.',
+      'Al-Sufi (903–986 CE) produced the Book of Fixed Stars in 964 CE, cataloguing 1,022 stars. In it, he described a faint smudge near Andromeda — the first recorded observation of the Andromeda Galaxy, 2.5 million light-years away. European astronomers would not independently spot it for another 648 years.',
+      'These scholars gave the stars the names we still use: Altair ("the flying eagle"), Betelgeuse ("the hand of the central one"), Aldebaran ("the follower"), Deneb ("tail of the hen"), Rigel ("foot"). Over 200 star names in modern astronomy come from Arabic — the single largest linguistic source of star names in the world.'
+    ],
+    facts:[
+      {n:'200+', l:'Star names from Arabic used today'},
+      {n:'1,022', l:'Stars catalogued by Al-Sufi in 964 CE'},
+      {n:'2.5M', l:'Light-years to Andromeda Galaxy (spotted by Al-Sufi)'},
+      {n:'2 min', l:'Al-Battani\'s error in calculating the solar year'}
+    ],
+    didYouKnow:'Al-Sufi spotted the Andromeda Galaxy — 2.5 million light-years away — with his naked eye in 964 CE and recorded it as "a nebulous smear." No European astronomer would independently observe it until Simon Marius used a telescope in 1612, more than six centuries later.'
+  },
+  egypt: {
+    label:'Ancient Egypt',
+    title:'Pyramids, Orion & the Eternal Sky',
+    subtitle:'Nile Valley · 3000–30 BCE',
+    accent:'#fbbf24',
+    paragraphs:[
+      'Every year, like clockwork, the brightest star in the night sky vanished. For 70 days, Sirius disappeared below the Egyptian horizon. Then, one morning in mid-July, it reappeared just before dawn — and the Nile began to flood. For the ancient Egyptians, this was no coincidence. It was the universe working exactly as designed.',
+      'The Egyptians called Sirius Sopdet and associated it with the goddess Isis. Its annual reappearance marked the start of the Egyptian New Year. This cosmic alarm clock was so reliable that the Egyptians built one of the world\'s first 365-day solar calendars around it — 12 months of 30 days plus 5 extra days celebrated as the birthdays of the gods.',
+      'The Great Pyramid of Giza is aligned to the four cardinal directions with an error of just 3/60ths of a degree. Four narrow shafts inside point toward key stars of the era: Orion\'s Belt (Osiris), Sirius (Isis), and Thuban, the pole star around 2500 BCE.',
+      'We owe the Egyptians something we use every day: the 24-hour day. They divided the night sky into 36 star groups called decans. During summer, only 12 decans were visible, giving 12 night-hours. Daytime was split into 10 hours plus one each for dawn and dusk — making 12 + 12 = 24 hours.'
+    ],
+    facts:[
+      {n:'70', l:'Days Sirius was invisible (matches mummification period)'},
+      {n:'3/60°', l:'Alignment error of the Great Pyramid'},
+      {n:'36', l:'Decans (star groups) that gave us the 24-hour day'},
+      {n:'1461', l:'Years in a full Sothic cycle'}
+    ],
+    didYouKnow:'The 70-day period of mummification was deliberately chosen to match the 70 days that Sirius was invisible in the sky. The Egyptians believed the dead were being prepared for rebirth — just as the star was.'
+  },
+  india: {
+    label:'India & China',
+    title:'Lunar Mansions & Earth\'s Rotation',
+    subtitle:'South & East Asia · 1500 BCE – 600 CE',
+    accent:'#f87171',
+    paragraphs:[
+      'On the night of 4 July 1054, Chinese astronomers looked up and saw something impossible: a new star so bright it was visible in broad daylight for 23 days. They called it a "guest star." What they witnessed was a star exploding 6,500 light-years away. Today, the remains form the Crab Nebula, with a dead stellar core spinning 30 times per second. The Chinese recorded it. No European astronomer did.',
+      'The Indian system, called Jyotisha, divided the sky into 27 Nakshatras — lunar mansions, each spanning 13°20\' of the ecliptic. Because the Moon takes roughly 27.3 days to orbit Earth, it passes through approximately one Nakshatra per day. References appear as early as the Rig Veda (~1500 BCE), making this system over 3,500 years old.',
+      'India\'s greatest ancient astronomer, Aryabhata (born 476 CE), wrote the Aryabhatiya at just 23 years old. He proposed that the Earth rotates on its axis, explaining apparent star movement with a brilliant analogy: "Just as a man in a boat moving forward sees stationary objects on the shore moving backward." He calculated Earth\'s rotation period at 23 hours, 56 minutes, and 4.1 seconds — off by just 0.009 seconds from the modern value.',
+      'China developed 28 Lunar Mansions (Xiu) and recorded every appearance of Halley\'s Comet since 240 BCE — all 30 of them. In 635 CE, Chinese astronomers were the first to note that comet tails always point away from the Sun.'
+    ],
+    facts:[
+      {n:'0.009s', l:'Aryabhata\'s error calculating Earth\'s rotation'},
+      {n:'27', l:'Nakshatras (Indian lunar mansions)'},
+      {n:'3500+', l:'Years since Nakshatras first recorded (Rig Veda)'},
+      {n:'30', l:'Appearances of Halley\'s Comet recorded by China'}
+    ],
+    didYouKnow:'Aryabhata calculated how fast the Earth spins to within 0.009 seconds of the modern value — using nothing but mathematics and naked-eye observations, over a thousand years before Copernicus even proposed that the Earth moves.'
+  },
+  polynesia: {
+    label:'Polynesian Wayfinders',
+    title:'Crossing the Pacific by Stars',
+    subtitle:'Pacific Ocean · 1000–1400 CE',
+    accent:'#2dd4bf',
+    paragraphs:[
+      'Picture this: you are standing on a wooden canoe in the middle of the Pacific Ocean. No compass, no map, no GPS. The nearest island is hundreds of miles away, invisible over the horizon. The ocean stretches 10 million square miles around you — an area larger than North and South America combined. And yet, you know exactly where you are.',
+      'The Polynesian Triangle — bounded by Hawai\'i in the north, New Zealand in the southwest, and Easter Island in the southeast — contains over 1,000 islands scattered across the largest ocean on Earth. Their secret was the star compass: a mental map dividing the horizon into 32 houses, each 11.25° apart, based on where specific stars rise and set. A navigator memorised at least 150 stars.',
+      'The most important star for Hawaiian navigators was Hōkūle\'a — the star Arcturus. Arcturus passes directly overhead at Hawai\'i\'s latitude (19.8°N), making it a zenith star. When a navigator saw Arcturus directly above, they knew they had reached Hawai\'i\'s latitude. But stars were only part of the toolkit — navigators also read ocean swells, watched cloud formations, and carried frigate birds aboard.',
+      'In 1976, master navigator Mau Piailug — one of only six people alive who still knew traditional wayfinding — guided the Hōkūle\'a canoe 2,500 miles from Hawai\'i to Tahiti without instruments. Over 17,000 Tahitians came to the beach to greet its arrival.'
+    ],
+    facts:[
+      {n:'10M', l:'Square miles of Pacific navigated without instruments'},
+      {n:'150+', l:'Stars memorised by a navigator'},
+      {n:'32', l:'Houses in the Polynesian star compass'},
+      {n:'2,500', l:'Miles Hōkūle\'a sailed to Tahiti in 1976'}
+    ],
+    didYouKnow:'When Hōkūle\'a arrived in Tahiti in 1976 guided only by stars, waves, and birds, over 17,000 Tahitians came to the beach — nearly half the island\'s population. The navigator Mau Piailug was one of only six people left alive in the entire Pacific who still knew traditional wayfinding.'
+  },
+  babylon: {
+    label:'Babylon & Mesopotamia',
+    title:'Birth of the Zodiac',
+    subtitle:'Mesopotamia · 3000–300 BCE',
+    accent:'#a78bfa',
+    paragraphs:[
+      'Every time you check the clock, you are using Babylonian mathematics. 60 seconds in a minute. 60 minutes in an hour. 360 degrees in a circle. These are not random numbers — they are the legacy of Mesopotamian astronomers who chose base-60 because it is divisible by 2, 3, 4, 5, 6, 10, 12, 15, 20, and 30.',
+      'Around 1000 BCE, they compiled the MUL.APIN tablets — listing 66 stars and constellations along with heliacal rising dates and calendar calculations. By the 5th century BCE, Babylonian astronomers had compressed earlier observations into the 12 equally-spaced zodiac signs of 30° each that we still recognise: Taurus, Aquarius, Virgo, and others.',
+      'Their greatest mathematical triumph was the Saros cycle: the discovery that eclipses repeat every 6,585.3 days — approximately 18 years, 11 days, and 8 hours. After one Saros, the Sun, Earth, and Moon return to almost exactly the same geometric arrangement, producing a nearly identical eclipse. Babylonian astronomers tracked hundreds of lunar eclipses over centuries to establish this.',
+      'The greatest Babylonian astronomer, Kidinnu (4th century BCE), developed a sophisticated system for predicting the Moon\'s motion. His work was absorbed by Greek astronomers, then passed to Islamic scholars, then translated into Latin — carrying Babylonian mathematics to the modern world.'
+    ],
+    facts:[
+      {n:'6,585', l:'Days in the Saros eclipse cycle'},
+      {n:'12', l:'Zodiac signs invented by Babylon (~5th century BCE)'},
+      {n:'60', l:'Base-60 number system — still in our clocks'},
+      {n:'7,000', l:'Celestial omens in the Enuma Anu Enlil tablets'}
+    ],
+    didYouKnow:'The word "Saros" — used worldwide for the famous 18-year eclipse cycle — is actually a 300-year-old mistake. The Babylonians never used this word. Edmund Halley applied it in 1691 based on a misreading of a medieval encyclopedia, and nobody has bothered to correct it since.'
+  }
+};
+
+/* ============================================================
+   STARFIELD CANVAS
+============================================================ */
+(function(){
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [], mouse = {x:0.5, y:0.5};
+
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function initStars(){
+    stars = [];
+    const count = Math.floor((W*H)/5000);
+    for(let i=0;i<count;i++){
+      stars.push({
+        x: Math.random(),
+        y: Math.random(),
+        r: Math.random()*1.8 + 0.2,
+        opacity: Math.random()*0.7 + 0.1,
+        twinkleSpeed: Math.random()*0.02 + 0.005,
+        twinkleOffset: Math.random()*Math.PI*2,
+        layer: Math.floor(Math.random()*3) // 0=near,1=mid,2=far
+      });
+    }
+  }
+
+  let t = 0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t += 0.01;
+
+    // Subtle gradient bg
+    const grd = ctx.createRadialGradient(W*0.5,H*0.4,0,W*0.5,H*0.4,H*0.8);
+    grd.addColorStop(0,'rgba(13,21,48,0.95)');
+    grd.addColorStop(0.5,'rgba(8,12,26,0.98)');
+    grd.addColorStop(1,'rgba(6,9,18,1)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0,0,W,H);
+
+    // Nebula wisps
+    const n1 = ctx.createRadialGradient(W*0.7,H*0.3,0,W*0.7,H*0.3,W*0.35);
+    n1.addColorStop(0,'rgba(78,205,196,0.025)');
+    n1.addColorStop(1,'transparent');
+    ctx.fillStyle=n1;ctx.fillRect(0,0,W,H);
+
+    const n2 = ctx.createRadialGradient(W*0.2,H*0.6,0,W*0.2,H*0.6,W*0.3);
+    n2.addColorStop(0,'rgba(167,139,250,0.02)');
+    n2.addColorStop(1,'transparent');
+    ctx.fillStyle=n2;ctx.fillRect(0,0,W,H);
+
+    stars.forEach(s=>{
+      const parallaxX = (mouse.x - 0.5) * (s.layer * 0.008 + 0.002) * W;
+      const parallaxY = (mouse.y - 0.5) * (s.layer * 0.008 + 0.002) * H;
+      const sx = (s.x * W) - parallaxX;
+      const sy = (s.y * H) - parallaxY;
+      const twinkle = Math.sin(t * s.twinkleSpeed * 60 + s.twinkleOffset)*0.35 + 0.65;
+      const op = s.opacity * twinkle;
+
+      ctx.beginPath();
+      ctx.arc(sx, sy, s.r, 0, Math.PI*2);
+      // Color stars slightly
+      const hue = s.layer === 0 ? '210,230,255' : s.layer === 1 ? '220,220,255' : '255,248,220';
+      ctx.fillStyle = `rgba(${hue},${op})`;
+      ctx.fill();
+
+      // Bright stars get a glow
+      if(s.r > 1.4){
+        const glow = ctx.createRadialGradient(sx,sy,0,sx,sy,s.r*4);
+        glow.addColorStop(0,`rgba(255,248,200,${op*0.4})`);
+        glow.addColorStop(1,'transparent');
+        ctx.fillStyle=glow;
+        ctx.fillRect(sx-s.r*4,sy-s.r*4,s.r*8,s.r*8);
+      }
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('mousemove',e=>{
+    mouse.x = e.clientX/window.innerWidth;
+    mouse.y = e.clientY/window.innerHeight;
+  });
+  window.addEventListener('resize',()=>{resize();initStars()});
+  resize();initStars();draw();
+})();
+
+/* ============================================================
+   NAV SCROLL EFFECT
+============================================================ */
+window.addEventListener('scroll',()=>{
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 80);
+});
+
+/* ============================================================
+   SCROLL REVEAL
+============================================================ */
+const revealObserver = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting) e.target.classList.add('visible');
+  });
+},{threshold:0.1, rootMargin:'0px 0px -50px 0px'});
+
+document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+
+/* ============================================================
+   ARTICLE OVERLAY
+============================================================ */
+let currentVizAnim = null;
+
+function openArticle(id){
+  const c = CULTURES[id];
+  if(!c) return;
+
+  // Style the panel
+  const panel = document.getElementById('article-panel');
+  panel.style.setProperty('--article-accent', c.accent);
+
+  // Build HTML
+  const factsHTML = c.facts.map(f=>`
+    <div class="fact-card">
+      <span class="fact-card-number">${f.n}</span>
+      <span class="fact-card-label">${f.l}</span>
+    </div>
+  `).join('');
+
+  const parasHTML = c.paragraphs.map((p,i)=>
+    `<p class="article-text">${p}</p>`
+  ).join('');
+
+  document.getElementById('article-body').innerHTML = `
+    <div class="article-culture-label">${c.label}</div>
+    <h2 class="article-title">${c.title}</h2>
+    <div class="article-subtitle">${c.subtitle}</div>
+    ${parasHTML}
+    <div class="fact-cards">${factsHTML}</div>
+    <div class="did-you-know"><p>${c.didYouKnow}</p></div>
+  `;
+
+  // Open overlay
+  const overlay = document.getElementById('article-overlay');
+  overlay.style.setProperty('--article-accent', c.accent);
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Start viz
+  if(currentVizAnim) { cancelAnimationFrame(currentVizAnim); currentVizAnim = null; }
+  const vizCanvas = document.getElementById('article-viz');
+  startViz(id, vizCanvas, c.accent);
+
+  // Scroll to top of panel
+  panel.scrollTop = 0;
+}
+
+function closeArticle(){
+  document.getElementById('article-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  if(currentVizAnim){ cancelAnimationFrame(currentVizAnim); currentVizAnim=null; }
+}
+
+// Close on Escape
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeArticle(); });
+
+/* ============================================================
+   ASTRONOMICAL VISUALISATIONS
+============================================================ */
+function startViz(id, canvas, accent){
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  let t = 0;
+
+  function hexToRgb(hex){
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return {r,g,b};
+  }
+  const ac = hexToRgb(accent);
+  const acStr = `${ac.r},${ac.g},${ac.b}`;
+
+  const funcs = {
+    maya: drawMaya,
+    arab: drawArab,
+    egypt: drawEgypt,
+    india: drawIndia,
+    polynesia: drawPolynesia,
+    babylon: drawBabylon
+  };
+
+  function loop(){
+    t += 0.008;
+    ctx.clearRect(0,0,W,H);
+    (funcs[id]||drawMaya)(ctx,W,H,t,acStr);
+    currentVizAnim = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function drawBg(ctx,W,H,acStr){
+  const bg = ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#070d1e');
+  bg.addColorStop(1,'#0a1228');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+}
+
+function drawMaya(ctx,W,H,t,acStr){
+  drawBg(ctx,W,H);
+  const cx=W/2, cy=H/2+10;
+
+  // Outer Haab wheel - 18 segments rotating
+  for(let i=0;i<18;i++){
+    const a0 = (i/18)*Math.PI*2 + t*0.3;
+    const a1 = ((i+0.85)/18)*Math.PI*2 + t*0.3;
+    const hue = 120 + i*8;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,75,a0,a1);
+    ctx.closePath();
+    ctx.fillStyle=`hsla(${hue},50%,${12+i%3*4}%,0.9)`;
+    ctx.fill();
+    ctx.strokeStyle=`rgba(${acStr},0.3)`;
+    ctx.lineWidth=0.8; ctx.stroke();
+  }
+
+  // Middle ring
+  ctx.beginPath();
+  ctx.arc(cx,cy,75,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(${acStr},0.5)`;
+  ctx.lineWidth=1.5; ctx.stroke();
+
+  // Inner Tzolkin wheel - 20 segments counter-rotating
+  for(let i=0;i<20;i++){
+    const a0 = (i/20)*Math.PI*2 - t*0.5;
+    const a1 = ((i+0.82)/20)*Math.PI*2 - t*0.5;
+    ctx.beginPath();
+    ctx.arc(cx,cy,52,a0,a1);
+    ctx.strokeStyle=`rgba(${acStr},${0.4+0.3*(i%3/2)})`;
+    ctx.lineWidth=4; ctx.stroke();
+
+    // Day dot
+    const da = a0 + Math.PI/20;
+    ctx.beginPath();
+    ctx.arc(cx+Math.cos(da)*44, cy+Math.sin(da)*44, 2.5, 0, Math.PI*2);
+    ctx.fillStyle=`rgba(${acStr},0.8)`;
+    ctx.fill();
+  }
+
+  // Inner ring
+  ctx.beginPath();
+  ctx.arc(cx,cy,52,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(${acStr},0.6)`; ctx.lineWidth=1; ctx.stroke();
+
+  // Venus marker rotating
+  const vx = cx + Math.cos(t*0.6)*38, vy = cy + Math.sin(t*0.6)*38;
+  const vglow = ctx.createRadialGradient(vx,vy,0,vx,vy,12);
+  vglow.addColorStop(0,`rgba(255,220,80,0.9)`);
+  vglow.addColorStop(1,'transparent');
+  ctx.fillStyle=vglow; ctx.fillRect(vx-12,vy-12,24,24);
+  ctx.beginPath(); ctx.arc(vx,vy,4,0,Math.PI*2);
+  ctx.fillStyle='#f4c842'; ctx.fill();
+
+  // Center
+  ctx.beginPath(); ctx.arc(cx,cy,8,0,Math.PI*2);
+  ctx.fillStyle=`rgba(${acStr},0.9)`; ctx.fill();
+
+  // Label
+  ctx.font='bold 10px Cinzel, serif';
+  ctx.fillStyle='rgba(240,235,224,0.5)';
+  ctx.textAlign='center';
+  ctx.fillText('TZOLKIN · HAAB · LONG COUNT', cx, H-12);
+}
+
+function drawArab(ctx,W,H,t,acStr){
+  drawBg(ctx,W,H);
+  const cx=W*0.45, cy=H/2;
+
+  // Astrolabe outer ring
+  ctx.beginPath(); ctx.arc(cx,cy,78,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(${acStr},0.5)`; ctx.lineWidth=2; ctx.stroke();
+
+  // Degree markings
+  for(let i=0;i<72;i++){
+    const a = (i/72)*Math.PI*2;
+    const r1 = 74, r2 = i%6===0 ? 68 : 72;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(a)*r1, cy+Math.sin(a)*r1);
+    ctx.lineTo(cx+Math.cos(a)*r2, cy+Math.sin(a)*r2);
+    ctx.strokeStyle=`rgba(${acStr},${i%6===0?0.6:0.3})`;
+    ctx.lineWidth=i%6===0?1.5:0.8; ctx.stroke();
+  }
+
+  // Rete (rotating plate)
+  ctx.save();
+  ctx.translate(cx,cy); ctx.rotate(t*0.2);
+  ctx.beginPath(); ctx.arc(0,0,58,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(${acStr},0.25)`; ctx.lineWidth=1; ctx.stroke();
+
+  // Star pointers on rete
+  const starPositions = [
+    {name:'Altair',r:50,a:0.5},{name:'Rigel',r:45,a:1.8},
+    {name:'Deneb',r:48,a:3.2},{name:'Aldebaran',r:42,a:4.6},
+    {name:'Betelgeuse',r:46,a:5.8}
+  ];
+  starPositions.forEach(s=>{
+    const sx = Math.cos(s.a)*s.r, sy = Math.sin(s.a)*s.r;
+    ctx.beginPath(); ctx.arc(sx,sy,3.5,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${acStr},0.9)`; ctx.fill();
+    ctx.fillStyle='rgba(240,235,224,0.7)';
+    ctx.font='7px Jost, sans-serif'; ctx.textAlign='center';
+    ctx.fillText(s.name, sx, sy-7);
+  });
+  ctx.restore();
+
+  // Alidade (rotating rule)
+  ctx.save();
+  ctx.translate(cx,cy); ctx.rotate(t*0.4);
+  ctx.beginPath();
+  ctx.moveTo(-70,0); ctx.lineTo(70,0);
+  ctx.strokeStyle=`rgba(${acStr},0.7)`; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(70,0,4,0,Math.PI*2);
+  ctx.fillStyle=`rgba(${acStr},0.9)`; ctx.fill();
+  ctx.restore();
+
+  // Center pin
+  ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2);
+  ctx.fillStyle=`rgba(${acStr},1)`; ctx.fill();
+
+  // Title
+  ctx.font='10px Cinzel, serif'; ctx.textAlign='center';
+  ctx.fillStyle='rgba(240,235,224,0.5)';
+  ctx.fillText('BAYT AL-HIKMA · HOUSE OF WISDOM', cx, H-12);
+}
+
+function drawEgypt(ctx,W,H,t,acStr){
+  drawBg(ctx,W,H);
+  const cx=W/2, baseY=H-20;
+
+  // Stars (Orion's belt)
+  const orion = [{x:cx-55,y:55},{x:cx-5,y:45},{x:cx+50,y:60}];
+  orion.forEach((s,i)=>{
+    const pulse = Math.sin(t*2+i*1.2)*0.3+0.7;
+    const glow = ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,15);
+    glow.addColorStop(0,`rgba(${acStr},${0.5*pulse})`);
+    glow.addColorStop(1,'transparent');
+    ctx.fillStyle=glow; ctx.fillRect(s.x-15,s.y-15,30,30);
+    ctx.beginPath(); ctx.arc(s.x,s.y,3,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${acStr},${pulse})`; ctx.fill();
+  });
+
+  // Sirius (brighter)
+  const siriusPulse = Math.sin(t*1.5)*0.4+0.6;
+  const sirius = {x:cx-140, y:75};
+  const sg = ctx.createRadialGradient(sirius.x,sirius.y,0,sirius.x,sirius.y,18);
+  sg.addColorStop(0,`rgba(180,210,255,${0.7*siriusPulse})`);
+  sg.addColorStop(1,'transparent');
+  ctx.fillStyle=sg; ctx.fillRect(sirius.x-18,sirius.y-18,36,36);
+  ctx.beginPath(); ctx.arc(sirius.x,sirius.y,4,0,Math.PI*2);
+  ctx.fillStyle=`rgba(180,210,255,${siriusPulse})`; ctx.fill();
+  ctx.fillStyle='rgba(180,210,255,0.6)';
+  ctx.font='7px Jost'; ctx.textAlign='center';
+  ctx.fillText('SOPDET', sirius.x, sirius.y+14);
+
+  // Orion label
+  ctx.fillStyle=`rgba(${acStr},0.5)`;
+  ctx.font='7px Jost'; ctx.textAlign='center';
+  ctx.fillText('ORION (OSIRIS)', cx, 88);
+
+  // Pyramid silhouette
+  const ph = 100, pw = 160;
+  ctx.beginPath();
+  ctx.moveTo(cx, baseY-ph);
+  ctx.lineTo(cx+pw/2, baseY);
+  ctx.lineTo(cx-pw/2, baseY);
+  ctx.closePath();
+  ctx.fillStyle='rgba(20,14,5,0.95)';ctx.fill();
+  ctx.strokeStyle=`rgba(${acStr},0.6)`;ctx.lineWidth=1.5;ctx.stroke();
+
+  // Shaft light beams
+  const beamAlpha = (Math.sin(t*0.8)*0.3+0.5);
+  // Southern shaft → Orion
+  ctx.beginPath();
+  ctx.moveTo(cx-25, baseY-60);
+  ctx.lineTo(orion[1].x, orion[1].y);
+  const beamGrd = ctx.createLinearGradient(cx-25,baseY-60,orion[1].x,orion[1].y);
+  beamGrd.addColorStop(0,`rgba(${acStr},${beamAlpha*0.5})`);
+  beamGrd.addColorStop(1,`rgba(${acStr},0)`);
+  ctx.strokeStyle=beamGrd; ctx.lineWidth=1.5; ctx.stroke();
+
+  // Northern shaft → Sirius
+  ctx.beginPath();
+  ctx.moveTo(cx-35, baseY-65);
+  ctx.lineTo(sirius.x, sirius.y);
+  const sg2 = ctx.createLinearGradient(cx-35,baseY-65,sirius.x,sirius.y);
+  sg2.addColorStop(0,`rgba(180,210,255,${beamAlpha*0.4})`);
+  sg2.addColorStop(1,'transparent');
+  ctx.strokeStyle=sg2; ctx.lineWidth=1.5; ctx.stroke();
+
+  ctx.font='10px Cinzel'; ctx.textAlign='center';
+  ctx.fillStyle='rgba(240,235,224,0.4)';
+  ctx.fillText('GIZA · 2560 BCE · ALIGNED TO THE STARS', cx, H-8);
+}
+
+function drawIndia(ctx,W,H,t,acStr){
+  drawBg(ctx,W,H);
+  const cx=W*0.48, cy=H/2;
+  const R=72;
+
+  // Outer ring
+  ctx.beginPath(); ctx.arc(cx,cy,R+8,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(${acStr},0.15)`; ctx.lineWidth=1; ctx.stroke();
+
+  // 27 Nakshatra divisions
+  for(let i=0;i<27;i++){
+    const a0 = (i/27)*Math.PI*2 - Math.PI/2;
+    const a1 = ((i+0.88)/27)*Math.PI*2 - Math.PI/2;
+    const active = Math.floor(((t*0.15)%1)*27)===i;
+    ctx.beginPath();
+    ctx.arc(cx,cy,R,a0,a1);
+    ctx.arc(cx,cy,R-18,a1,a0,true);
+    ctx.closePath();
+    ctx.fillStyle=active?`rgba(${acStr},0.4)`:`rgba(${acStr},0.06)`;
+    ctx.fill();
+    ctx.strokeStyle=`rgba(${acStr},0.3)`; ctx.lineWidth=0.5; ctx.stroke();
+
+    // Dot at segment center
+    const da = (i+0.5)/27*Math.PI*2 - Math.PI/2;
+    ctx.beginPath();
+    ctx.arc(cx+Math.cos(da)*(R-9), cy+Math.sin(da)*(R-9), active?3:1.5, 0, Math.PI*2);
+    ctx.fillStyle=active?`rgba(${acStr},1)`:`rgba(${acStr},0.4)`; ctx.fill();
+  }
+
+  // Moon position (moving through nakshatras)
+  const moonA = t*0.15*Math.PI*2 - Math.PI/2;
+  const moonX = cx+Math.cos(moonA)*(R-9);
+  const moonY = cy+Math.sin(moonA)*(R-9);
+  const moonGlow = ctx.createRadialGradient(moonX,moonY,0,moonX,moonY,14);
+  moonGlow.addColorStop(0,'rgba(220,225,255,0.7)');
+  moonGlow.addColorStop(1,'transparent');
+  ctx.fillStyle=moonGlow; ctx.fillRect(moonX-14,moonY-14,28,28);
+  ctx.beginPath(); ctx.arc(moonX,moonY,5,0,Math.PI*2);
+  ctx.fillStyle='rgba(220,225,255,0.95)'; ctx.fill();
+
+  // Earth at center
+  ctx.beginPath(); ctx.arc(cx,cy,12,0,Math.PI*2);
+  const earthGrd = ctx.createRadialGradient(cx-3,cy-3,0,cx,cy,12);
+  earthGrd.addColorStop(0,'rgba(80,140,255,0.9)');
+  earthGrd.addColorStop(1,'rgba(40,80,180,0.7)');
+  ctx.fillStyle=earthGrd; ctx.fill();
+
+  // Earth rotation arrow
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(t*0.5);
+  ctx.beginPath(); ctx.arc(0,0,20,0,Math.PI*1.6);
+  ctx.strokeStyle=`rgba(${acStr},0.5)`; ctx.lineWidth=1.2; ctx.stroke();
+  ctx.restore();
+
+  // Label
+  ctx.font='10px Cinzel'; ctx.textAlign='center';
+  ctx.fillStyle='rgba(240,235,224,0.4)';
+  ctx.fillText('27 NAKSHATRAS · ARYABHATA · 476 CE', cx, H-8);
+}
+
+function drawPolynesia(ctx,W,H,t,acStr){
+  drawBg(ctx,W,H);
+  // Ocean background
+  const ocean = ctx.createLinearGradient(0,H*0.55,0,H);
+  ocean.addColorStop(0,'rgba(7,45,55,0.6)');
+  ocean.addColorStop(1,'rgba(4,25,35,0.8)');
+  ctx.fillStyle=ocean; ctx.fillRect(0,H*0.55,W,H);
+  // Subtle wave
+  ctx.beginPath();
+  ctx.moveTo(0,H*0.62);
+  for(let x=0;x<=W;x+=4){
+    ctx.lineTo(x, H*0.62 + Math.sin(x*0.03+t*2)*3);
+  }
+  ctx.strokeStyle='rgba(45,212,191,0.15)'; ctx.lineWidth=1; ctx.stroke();
+
+  const cx=W*0.5, cy=H*0.45;
+  const R=65;
+
+  // 32-point star compass
+  for(let i=0;i<32;i++){
+    const a = (i/32)*Math.PI*2 - Math.PI/2;
+    const major = i%4===0, minor = i%8===0;
+    const r1 = major ? R-5 : minor ? R-3 : R-1;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(a)*R, cy+Math.sin(a)*R);
+    ctx.lineTo(cx+Math.cos(a)*(R+12), cy+Math.sin(a)*(R+12));
+    ctx.strokeStyle=`rgba(${acStr},${major?0.8:minor?0.5:0.25})`;
+    ctx.lineWidth=major?1.5:0.8; ctx.stroke();
+  }
+
+  // Compass circle
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(${acStr},0.4)`; ctx.lineWidth=1; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,R*0.6,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(${acStr},0.2)`; ctx.lineWidth=0.8; ctx.stroke();
+
+  // Cardinal direction labels
+  const dirs = ['N','E','S','W'];
+  dirs.forEach((d,i)=>{
+    const a = (i/4)*Math.PI*2 - Math.PI/2;
+    ctx.font='bold 9px Jost'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle=`rgba(${acStr},0.8)`;
+    ctx.fillText(d, cx+Math.cos(a)*(R+22), cy+Math.sin(a)*(R+22));
+  });
+  ctx.textBaseline='alphabetic';
+
+  // Key navigation stars at horizon
+  const navStars = [
+    {name:'Hōkūleʻa',a:-1.2,dist:R+32,size:5},
+    {name:'Crux S',a:2.0,dist:R+28,size:4},
+    {name:'Polaris',a:-Math.PI/2,dist:R+25,size:3.5}
+  ];
+  navStars.forEach(s=>{
+    const sx=cx+Math.cos(s.a)*s.dist, sy=cy+Math.sin(s.a)*s.dist;
+    const pulse=Math.sin(t*2+s.a)*0.3+0.7;
+    const sg=ctx.createRadialGradient(sx,sy,0,sx,sy,s.size*3);
+    sg.addColorStop(0,`rgba(${acStr},${0.5*pulse})`);
+    sg.addColorStop(1,'transparent');
+    ctx.fillStyle=sg; ctx.fillRect(sx-s.size*3,sy-s.size*3,s.size*6,s.size*6);
+    ctx.beginPath(); ctx.arc(sx,sy,s.size,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,248,200,${pulse})`; ctx.fill();
+    ctx.font='6.5px Jost'; ctx.textAlign='center';
+    ctx.fillStyle='rgba(240,235,224,0.6)';
+    ctx.fillText(s.name, sx, sy-s.size-3);
+  });
+
+  // Canoe outline (simplified)
+  const canoeX = cx + Math.cos(t*0.2)*15, canoeY = H*0.62;
+  ctx.save(); ctx.translate(canoeX, canoeY); ctx.rotate(Math.sin(t*0.2)*0.1);
+  ctx.beginPath();
+  ctx.moveTo(-18,0); ctx.quadraticCurveTo(0,-5,18,0); ctx.quadraticCurveTo(0,5,-18,0);
+  ctx.strokeStyle=`rgba(${acStr},0.7)`; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,-5); ctx.lineTo(0,-20);
+  ctx.strokeStyle=`rgba(${acStr},0.5)`; ctx.lineWidth=1; ctx.stroke();
+  ctx.restore();
+
+  ctx.font='10px Cinzel'; ctx.textAlign='center';
+  ctx.fillStyle='rgba(240,235,224,0.4)';
+  ctx.fillText('32-POINT STAR COMPASS · PACIFIC WAYFINDING', cx, H-8);
+}
+
+function drawBabylon(ctx,W,H,t,acStr){
+  drawBg(ctx,W,H);
+  const cx=W*0.47, cy=H/2;
+
+  // Saros cycle outer ring (eclipse prediction)
+  const sarosAngle = (t*0.08) % (Math.PI*2);
+  ctx.beginPath(); ctx.arc(cx,cy,78,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(${acStr},0.2)`; ctx.lineWidth=1; ctx.stroke();
+
+  // 12 Zodiac signs positions
+  const zodiac = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+  zodiac.forEach((z,i)=>{
+    const a = (i/12)*Math.PI*2 - Math.PI/2;
+    const zx = cx + Math.cos(a)*65, zy = cy + Math.sin(a)*65;
+    ctx.font='11px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle=`rgba(${acStr},0.75)`;
+    ctx.fillText(z, zx, zy);
+  });
+  ctx.textBaseline='alphabetic';
+
+  // Middle ring (Saros cycle representation)
+  ctx.beginPath(); ctx.arc(cx,cy,45,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(${acStr},0.3)`; ctx.lineWidth=1; ctx.stroke();
+
+  // Highlighted eclipse position
+  const eclX = cx+Math.cos(sarosAngle)*45, eclY = cy+Math.sin(sarosAngle)*45;
+  const eclGlow = ctx.createRadialGradient(eclX,eclY,0,eclX,eclY,12);
+  eclGlow.addColorStop(0,'rgba(255,180,50,0.7)');
+  eclGlow.addColorStop(0.5,'rgba(255,100,20,0.3)');
+  eclGlow.addColorStop(1,'transparent');
+  ctx.fillStyle=eclGlow; ctx.fillRect(eclX-12,eclY-12,24,24);
+  ctx.beginPath(); ctx.arc(eclX,eclY,5,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,200,80,0.9)'; ctx.fill();
+
+  // Inner planet orbits
+  [28,20].forEach((r,i)=>{
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(${acStr},${0.2-i*0.05})`; ctx.lineWidth=0.8; ctx.stroke();
+  });
+
+  // Moon orbiting
+  const moonA = t*0.4;
+  const mx=cx+Math.cos(moonA)*28, my=cy+Math.sin(moonA)*28;
+  ctx.beginPath(); ctx.arc(mx,my,4,0,Math.PI*2);
+  ctx.fillStyle='rgba(200,210,255,0.9)'; ctx.fill();
+
+  // Sun/Earth at center
+  const sunGrd = ctx.createRadialGradient(cx,cy,0,cx,cy,12);
+  sunGrd.addColorStop(0,'rgba(255,210,80,0.95)');
+  sunGrd.addColorStop(1,'rgba(200,140,30,0.7)');
+  ctx.beginPath(); ctx.arc(cx,cy,10,0,Math.PI*2);
+  ctx.fillStyle=sunGrd; ctx.fill();
+
+  // Base-60 label
+  ctx.font='9px Cinzel'; ctx.textAlign='center';
+  ctx.fillStyle='rgba(240,235,224,0.4)';
+  ctx.fillText('60° · SAROS CYCLE · ZODIAC · BASE-60', cx, H-8);
+}
+
+/* ============================================================
+   KEYBOARD / ESCAPE
+============================================================ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeArticle();
+});
+</script>
+
+<!-- ============================================================
+     QUIZ OVERLAY
+============================================================ -->
+<div id="quiz-overlay" style="
+  position:fixed;inset:0;z-index:300;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(4,7,16,0.92);backdrop-filter:blur(16px);
+  opacity:0;pointer-events:none;
+  transition:opacity 0.4s;
+">
+  <button onclick="closeQuiz()" style="
+    position:fixed;top:1.5rem;right:1.5rem;
+    width:44px;height:44px;border-radius:50%;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.12);
+    color:rgba(255,255,255,0.5);font-size:1.1rem;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all 0.2s;
+  " onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">✕</button>
+
+  <div id="quiz-panel" style="
+    width:min(640px,90vw);
+    max-height:90vh;overflow-y:auto;
+    padding:3rem 2.5rem;
+    position:relative;
+  ">
+
+    <!-- INTRO SCREEN -->
+    <div id="qscreen-intro">
+      <p style="font-family:'Jost',sans-serif;font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;color:#e8b84b;margin-bottom:1rem">AI Examiner · 5 Questions</p>
+      <h2 style="font-family:'Cinzel',serif;font-size:2.2rem;font-weight:400;color:#f0ebe0;margin-bottom:0.75rem;line-height:1.1">Test Your Cosmic<br>Knowledge</h2>
+      <p style="font-family:'Crimson Text',serif;font-style:italic;font-size:1.05rem;color:#9a92b0;margin-bottom:2rem">The AI will ask questions about the six civilisations. Type your answer — or speak it. Points are awarded for accuracy, cultural context, and depth.</p>
+      <div style="display:flex;gap:2rem;margin-bottom:2.5rem;padding:1.5rem;background:rgba(255,255,255,0.03);border-radius:4px;border:1px solid rgba(255,255,255,0.07)">
+        <div style="text-align:center">
+          <span style="font-family:'Cinzel',serif;font-size:2rem;color:#e8b84b;display:block">5</span>
+          <span style="font-family:'Jost',sans-serif;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#4a4460">Questions</span>
+        </div>
+        <div style="text-align:center">
+          <span style="font-family:'Cinzel',serif;font-size:2rem;color:#e8b84b;display:block">100</span>
+          <span style="font-family:'Jost',sans-serif;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#4a4460">Pts each</span>
+        </div>
+        <div style="text-align:center">
+          <span style="font-family:'Cinzel',serif;font-size:2rem;color:#e8b84b;display:block">500</span>
+          <span style="font-family:'Jost',sans-serif;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#4a4460">Max Score</span>
+        </div>
+      </div>
+
+      <input id="quiz-player-name" placeholder="Your name (for the leaderboard)"
+        style="width:100%;padding:0.75rem 1rem;
+          background:rgba(255,255,255,0.05);
+          border:1px solid rgba(255,255,255,0.12);border-radius:3px;
+          color:#f0ebe0;font-family:'Jost',sans-serif;font-size:0.9rem;
+          margin-bottom:1.5rem;outline:none;box-sizing:border-box;"
+        onkeydown="if(event.key==='Enter')startQuiz()"/>
+      <button onclick="startQuiz()" style="
+        padding:0.9rem 2.5rem;
+        font-family:'Jost',sans-serif;font-size:0.85rem;letter-spacing:0.15em;text-transform:uppercase;
+        background:#e8b84b;color:#060912;border-radius:2px;cursor:pointer;
+        border:none;transition:all 0.3s;
+        box-shadow:0 0 40px rgba(232,184,75,0.3);
+      ">Begin the Quiz ✦</button>
+    </div>
+
+    <!-- LOADING SCREEN -->
+    <div id="qscreen-loading" style="display:none;text-align:center;padding:3rem 0">
+      <div style="font-family:'Cinzel',serif;font-size:1.2rem;color:#e8b84b;margin-bottom:1rem">✦ Reading the Stars ✦</div>
+      <p style="font-family:'Jost',sans-serif;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:#4a4460">Generating your quiz...</p>
+    </div>
+
+    <!-- QUESTION SCREEN -->
+    <div id="qscreen-question" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
+        <span id="q-progress" style="font-family:'Jost',sans-serif;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:#4a4460"></span>
+        <span id="q-score-running" style="font-family:'Cinzel',serif;font-size:1rem;color:#e8b84b"></span>
+      </div>
+      <!-- Progress bar -->
+      <div style="height:2px;background:rgba(255,255,255,0.06);border-radius:1px;margin-bottom:2rem">
+        <div id="q-progress-bar" style="height:100%;background:#e8b84b;border-radius:1px;transition:width 0.5s;width:0%"></div>
+      </div>
+      <div id="q-culture-tag" style="font-family:'Jost',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.75rem;opacity:0.8"></div>
+      <div id="q-text" style="font-family:'Crimson Text',serif;font-size:1.3rem;color:#f0ebe0;line-height:1.5;margin-bottom:2rem;min-height:3rem"></div>
+
+      <!-- TTS play button -->
+      <button id="q-tts-btn" onclick="speakQuestion()" style="
+        display:inline-flex;align-items:center;gap:0.5rem;
+        padding:0.4rem 0.9rem;margin-bottom:1.5rem;
+        font-family:'Jost',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;
+        background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+        color:rgba(255,255,255,0.5);border-radius:2px;cursor:pointer;transition:all 0.2s;
+      ">🔊 Read aloud</button>
+
+      <!-- Multiple choice options -->
+      <div id="q-options" style="margin-bottom:1.5rem"></div>
+
+      <!-- Free text option -->
+      <span id="q-free-label">Or type / speak your own answer:</span>
+      <textarea id="q-answer" rows="4" placeholder="Type your answer here..."
+        style="width:100%;padding:0.9rem 1rem;
+          background:rgba(255,255,255,0.04);
+          border:1px solid rgba(255,255,255,0.1);border-radius:3px;
+          color:#f0ebe0;font-family:'Crimson Text',serif;font-size:1.05rem;
+          resize:none;outline:none;box-sizing:border-box;line-height:1.5;
+          transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='rgba(232,184,75,0.4)'"
+        onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
+        onkeydown="if(event.ctrlKey&&event.key==='Enter')submitAnswer()"></textarea>
+
+      <div style="display:flex;gap:1rem;margin-top:1rem;align-items:center">
+        <button onclick="submitAnswer()" id="q-submit-btn" style="
+          padding:0.75rem 2rem;
+          font-family:'Jost',sans-serif;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;
+          background:#e8b84b;color:#060912;border-radius:2px;cursor:pointer;
+          border:none;transition:all 0.3s;
+        ">Submit Answer</button>
+        <button id="q-voice-btn" onclick="toggleVoiceInput()" style="
+          padding:0.75rem 1rem;
+          font-family:'Jost',sans-serif;font-size:0.8rem;
+          background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);
+          color:rgba(255,255,255,0.6);border-radius:2px;cursor:pointer;
+          transition:all 0.2s;
+        ">🎤</button>
+        <span id="q-hint" style="font-family:'Jost',sans-serif;font-size:0.65rem;color:#4a4460">Ctrl+Enter to submit</span>
+      </div>
+    </div>
+
+    <!-- RESULT SCREEN (per question) -->
+    <div id="qscreen-result" style="display:none">
+      <div id="r-score-badge" style="
+        width:80px;height:80px;border-radius:50%;
+        display:flex;align-items:center;justify-content:center;
+        margin:0 auto 1.5rem;
+        border:2px solid #e8b84b;
+        font-family:'Cinzel',serif;font-size:1.8rem;color:#e8b84b;
+      "></div>
+      <h3 id="r-verdict" style="font-family:'Cinzel',serif;font-size:1.3rem;color:#f0ebe0;text-align:center;margin-bottom:1rem"></h3>
+      <div id="r-feedback" style="
+        font-family:'Crimson Text',serif;font-style:italic;font-size:1rem;
+        color:#9a92b0;line-height:1.6;
+        padding:1.2rem;background:rgba(255,255,255,0.03);
+        border-radius:3px;border-left:2px solid #e8b84b;
+        margin-bottom:1.5rem;
+      "></div>
+      <div id="r-ideal" style="display:none;margin-bottom:1.5rem">
+        <p style="font-family:'Jost',sans-serif;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:#e8b84b;margin-bottom:0.5rem">Key points</p>
+        <div id="r-ideal-text" style="font-family:'Crimson Text',serif;font-size:0.95rem;color:rgba(240,235,224,0.7);line-height:1.5"></div>
+      </div>
+      <button onclick="nextQuestion()" id="r-next-btn" style="
+        padding:0.75rem 2rem;
+        font-family:'Jost',sans-serif;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;
+        background:#e8b84b;color:#060912;border-radius:2px;cursor:pointer;
+        border:none;transition:all 0.3s;
+      "></button>
+    </div>
+
+    <!-- FINAL SCREEN -->
+    <div id="qscreen-final" style="display:none;text-align:center">
+      <div id="f-stars" style="font-size:2rem;margin-bottom:1rem;letter-spacing:0.3em"></div>
+      <p style="font-family:'Jost',sans-serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:#e8b84b;margin-bottom:0.5rem">Final Score</p>
+      <div id="f-score" style="font-family:'Cinzel',serif;font-size:4rem;color:#f0ebe0;margin-bottom:0.25rem"></div>
+      <div style="font-family:'Jost',sans-serif;font-size:0.75rem;color:#4a4460;margin-bottom:2rem">out of 500</div>
+      <div id="f-title" style="font-family:'Crimson Text',serif;font-style:italic;font-size:1.2rem;color:#9a92b0;margin-bottom:2rem"></div>
+
+      <!-- Leaderboard -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:4px;padding:1.5rem;margin-bottom:2rem">
+        <p style="font-family:'Jost',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#e8b84b;margin-bottom:1rem">Leaderboard</p>
+        <div id="f-leaderboard"></div>
+      </div>
+
+      <button onclick="closeQuiz()" style="
+        padding:0.75rem 2rem;margin-right:1rem;
+        font-family:'Jost',sans-serif;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;
+        background:rgba(255,255,255,0.07);color:#f0ebe0;border-radius:2px;cursor:pointer;
+        border:1px solid rgba(255,255,255,0.12);
+      ">Back to Map</button>
+      <button onclick="startQuiz()" style="
+        padding:0.75rem 2rem;
+        font-family:'Jost',sans-serif;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;
+        background:#e8b84b;color:#060912;border-radius:2px;cursor:pointer;border:none;
+      ">Play Again</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   QUIZ ENGINE — Claude API + TTS + Leaderboard
+============================================================ */
+
+// Full knowledge base passed as context to Claude
+const QUIZ_CONTEXT = `
+TOPIC 1 — MAYA: Venus synodic cycle = 584 days (modern: 583.92 days). Dresden Codex tracks 65 Venus cycles = 37,960 days. Number divides by 584, 260 (Tzolkin), and 365 (Haab). Venus called Chak Ek' (Great Star), linked to Kukulkan/Quetzalcoatl, rays = spear-thrower darts. "Star wars" timed to Venus morning appearance. Tikal conquered Uaxactun in 378 CE. Three calendars: Tzolkin (260 days, sacred ritual), Haab (365 days, 18 months x 20 days + 5 Wayeb), Long Count from 11 Aug 3114 BCE. Maya invented zero.
+
+TOPIC 2 — ARAB ASTRONOMY: House of Wisdom (Bayt al-Hikma), Baghdad, founded ~813 CE by Caliph al-Ma'mun. Al-Battani (858–929 CE): solar year = 365d 5h 46m 24s (off by 2 min 22 sec), introduced sine/cosine/tangent, used by Copernicus/Galileo. Ibn al-Haytham (965–1040 CE): Book of Optics, proved light enters eye not exits, camera obscura, Doubts about Ptolemy. Al-Sufi (903–986 CE): Book of Fixed Stars, 1022 stars, first observed Andromeda Galaxy in 964 CE (Europeans 648 years later). Over 200 star names from Arabic: Altair (flying eagle), Betelgeuse (hand of central one), Aldebaran (follower), Deneb (tail of hen), Rigel (foot).
+
+TOPIC 3 — EGYPT: Sirius = Sopdet/Isis. Heliacal rising marks Egyptian New Year (Wepet Renpet), predicts Nile flood. 70-day Sirius invisibility matches 70-day mummification period. 365-day calendar: 12 months x 30 days + 5 god birthdays. Sothic cycle = 1461 years. Duat = afterlife realm, 12 sections matching 12 night hours. Orion = Osiris. Great Pyramid aligned to cardinals with 3/60° error. Shafts point to Orion Belt, Sirius, Thuban. 36 decans → 24-hour day (12 night + 10 day + dawn + dusk). Karnak temple aligned to winter solstice. Abu Simbel sun reaches Ramses II face twice yearly.
+
+TOPIC 4 — INDIA & CHINA: Jyotisha = Vedic system. 27 Nakshatras (lunar mansions), 13°20' each, moon passes one per day. 108 padas total = prayer bead count. References in Rig Veda ~1500 BCE. Aryabhata (born 476 CE): Earth rotates on axis, rotation = 23h 56m 4.1s (off by 0.009 seconds!), pi ≈ 3.1416, eclipses as shadows, Earth circumference = 39,968 km (actual: 40,072 km). China: 28 Lunar Mansions (Xiu), 4 guardians (Azure Dragon, Black Tortoise, White Tiger, Vermilion Bird). 1,464 stars in 283 constellations. Supernova of 1054 CE = "guest star", now Crab Nebula. All 30 Halley's Comet appearances recorded since 240 BCE. 635 CE: comet tails point away from Sun.
+
+TOPIC 5 — POLYNESIA: Polynesian Triangle: Hawaii, New Zealand, Easter Island. 1000+ islands across 10 million sq miles. Star compass: 32 houses, 11.25° apart. Memorised 150+ stars. Hokule'a = Arcturus, zenith star for Hawaii (19.8°N). Southern Cross → south. Ocean swell patterns detect islands beyond horizon. Frigate birds released to find land. Pacific Golden Plover migration follows. White terns at dawn = nearby land. Knowledge transmitted orally as guild secrets. 1973: Polynesian Voyaging Society founded. 1975: Hokule'a canoe launched. 1976: Mau Piailug (one of 6 remaining wayfinders) sailed 2,500 miles to Tahiti in 34 days, 17,000 Tahitians greeted arrival. 2014–2017: worldwide circumnavigation 40,300 nautical miles.
+
+TOPIC 6 — BABYLON: Base-60 (sexagesimal): divisible by 2,3,4,5,6,10,12,15,20,30. Source of 60-min hours, 360-degree circles. MUL.APIN tablets ~1000 BCE: 66 stars, 3 celestial zones. 12-sign zodiac by 5th century BCE: Taurus (Bull of Heaven), Aquarius (Great One), Virgo (Furrow). Eudoxus of Cnidus copied 20 Babylonian constellations. Saros cycle = 6,585.3 days = 18 years 11 days 8 hours. Named "Saros" by Edmund Halley in 1691 — a historical error. Enuma Anu Enlil: 7,000 celestial omens on 70 tablets. Eclipse omen before Battle of Gaugamela (331 BCE) predicted Alexander's victory. Kidinnu (4th c. BCE) → Hipparchus → Ptolemy → Islamic scholars → Latin → modern science.
+`;
+
+const QUIZ_QUESTIONS = [
+  { culture:'Maya', color:'#4ade80',
+    q:'The Maya tracked Venus with remarkable precision. What was their calculated synodic cycle for Venus, and how does it compare to the modern scientific value?',
+    ideal:'The Maya calculated Venus synodic cycle as 584 days. The modern accepted value is 583.92 days — an error of less than 2 hours over the full cycle.',
+    keyPoints:['584 days', 'modern value 583.92', 'less than 2 hours error'] },
+  { culture:'Arab Astronomy', color:'#60a5fa',
+    q:'Al-Sufi recorded a "nebulous smear" near the constellation Andromeda in his Book of Fixed Stars in 964 CE. What was he actually observing, and why is this significant?',
+    ideal:'Al-Sufi was observing the Andromeda Galaxy — 2.5 million light-years away — with the naked eye. It was the first recorded observation of this galaxy. European astronomers would not independently observe it for another 648 years, when Simon Marius used a telescope in 1612.',
+    keyPoints:['Andromeda Galaxy', 'naked eye observation', '964 CE', '648 years before Europeans'] },
+  { culture:'Ancient Egypt', color:'#fbbf24',
+    q:'The ancient Egyptians divided the night sky into 36 "decans". Explain how this system led directly to the 24-hour day that we still use today.',
+    ideal:'The 36 decans were star groups. During the shortest summer nights, only 12 decans were visible, dividing the night into 12 hours. Daytime was also divided: 10 hours plus one each for dawn and dusk, making 12 daytime hours. Together: 12 + 12 = the 24-hour day.',
+    keyPoints:['36 decans', '12 visible in summer night', '12 night + 12 day = 24 hours', 'dawn and dusk counted'] },
+  { culture:'India & China', color:'#f87171',
+    q:'Aryabhata proposed that the Earth rotates on its axis over 1,000 years before Copernicus. How accurate was his calculation of Earth rotation period?',
+    ideal:'Aryabhata calculated Earth rotation period as 23 hours, 56 minutes, and 4.1 seconds. The modern value makes his calculation off by just 0.009 seconds — an extraordinary achievement using only naked-eye observations and mathematics around 476 CE.',
+    keyPoints:['23 hours 56 minutes 4.1 seconds', '0.009 seconds error', 'naked eye only', '476 CE'] },
+  { culture:'Polynesia', color:'#2dd4bf',
+    q:'The Polynesian Voyaging Society 1976 voyage of the Hōkūleʻa canoe proved that ancient Pacific island settlement was deliberate, not accidental. What techniques did Mau Piailug use to navigate 2,500 miles to Tahiti without instruments?',
+    ideal:'Mau Piailug used traditional wayfinding: a 32-point star compass memorising where specific stars rise and set on the horizon; zenith stars like Hōkūleʻa (Arcturus) that pass directly overhead at specific latitudes; ocean swell patterns felt through the hull; cloud formations over hidden islands; and bird behaviour (frigates and golden plovers). He was one of only six people still alive who knew these techniques.',
+    keyPoints:['star compass 32 points', 'zenith stars', 'ocean swells', 'cloud/bird reading', 'one of 6 remaining navigators'] },
+];
+
+// Quiz state
+let qState = {
+  screen: 'intro',
+  questions: [],
+  current: 0,
+  scores: [],
+  totalScore: 0,
+  playerName: '',
+  speechSynth: window.speechSynthesis || null,
+  recognition: null,
+  isRecording: false,
+  selectedOption: null,
+};
+
+function openQuiz() {
+  const overlay = document.getElementById('quiz-overlay');
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'all';
+  document.body.style.overflow = 'hidden';
+  showScreen('intro');
+}
+
+function closeQuiz() {
+  const overlay = document.getElementById('quiz-overlay');
+  overlay.style.opacity = '0';
+  overlay.style.pointerEvents = 'none';
+  document.body.style.overflow = '';
+  if (qState.speechSynth) qState.speechSynth.cancel();
+  if (qState.recognition) { try { qState.recognition.stop(); } catch(e){} }
+}
+
+function showScreen(name) {
+  ['intro','loading','question','result','final'].forEach(s => {
+    document.getElementById('qscreen-'+s).style.display = s === name ? 'block' : 'none';
+  });
+  qState.screen = name;
+}
+
+async function startQuiz() {
+  qState.playerName = document.getElementById('quiz-player-name').value.trim() || 'Explorer';
+  qState.current = 0;
+  qState.scores = [];
+  qState.totalScore = 0;
+  qState.selectedOption = null;
+
+  showScreen('loading');
+
+  try {
+    const generated = await generateQuizQuestions();
+    qState.questions = generated;
+  } catch(e) {
+    // Fallback to hardcoded questions
+    qState.questions = [...QUIZ_QUESTIONS].sort(() => Math.random() - 0.5);
+  }
+
+  showQuestion();
+}
+
+async function generateQuizQuestions() {
+  const prompt = `Generate exactly 5 quiz questions about ancient astronomy civilizations based on the knowledge base below. Each question must come from a DIFFERENT culture (choose 5 from: Maya, Arab Astronomy, Egypt, India & China, Polynesia, Babylon).
+
+For each question provide:
+- "culture": culture name (exactly as listed above)
+- "color": hex color (Maya:#4ade80, Arab Astronomy:#60a5fa, Egypt:#fbbf24, India & China:#f87171, Polynesia:#2dd4bf, Babylon:#a78bfa)
+- "q": engaging specific factual question
+- "options": array of exactly 5 answer strings. Exactly one is correct, others are plausible but wrong. Vary the position of the correct answer.
+- "correctIndex": 0-based index of the correct option
+- "ideal": full ideal answer explanation (2-3 sentences)
+- "keyPoints": array of 3-4 key facts
+
+Respond with ONLY valid JSON (no markdown fences, no extra text):
+{"questions": [...]}\n\nKnowledge base:\n${QUIZ_CONTEXT}`;
+
+  const res = await fetch('/api/claude', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 2000,
+      messages: [{role:'user', content: prompt}]
+    })
+  });
+  const data = await res.json();
+  const text = data.content[0].text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '');
+  const parsed = JSON.parse(text);
+  if (!parsed.questions || parsed.questions.length < 5) throw new Error('Invalid response');
+  return parsed.questions;
+}
+
+function showQuestion() {
+  const q = qState.questions[qState.current];
+  const n = qState.current + 1;
+  const total = qState.questions.length;
+
+  qState.selectedOption = null;
+
+  document.getElementById('q-progress').textContent = `Question ${n} of ${total}`;
+  document.getElementById('q-score-running').textContent = `Score: ${qState.totalScore}`;
+  document.getElementById('q-progress-bar').style.width = `${(qState.current/total)*100}%`;
+  document.getElementById('q-culture-tag').textContent = q.culture;
+  document.getElementById('q-culture-tag').style.color = q.color;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-answer').value = '';
+  document.getElementById('q-submit-btn').disabled = false;
+  document.getElementById('q-submit-btn').textContent = 'Submit Answer';
+  document.getElementById('q-voice-btn').textContent = '🎤';
+  qState.isRecording = false;
+
+  // Render MC options
+  const container = document.getElementById('q-options');
+  container.innerHTML = '';
+  if (q.options && q.options.length) {
+    const letters = ['A','B','C','D','E','F'];
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'q-option';
+      btn.innerHTML = `<span class="q-option-letter">${letters[i]}</span><span>${opt}</span>`;
+      btn.onclick = () => selectOption(i, btn);
+      container.appendChild(btn);
+    });
+  }
+
+  showScreen('question');
+
+  // Auto-speak question
+  setTimeout(() => speakQuestion(), 400);
+}
+
+function selectOption(index, btnEl) {
+  document.querySelectorAll('.q-option').forEach(b => b.classList.remove('selected'));
+  btnEl.classList.add('selected');
+  qState.selectedOption = index;
+  document.getElementById('q-answer').value = ''; // clear free text
+}
+
+// Deselect MC when user types in textarea
+(function() {
+  const ta = document.getElementById('q-answer');
+  if (ta) {
+    ta.addEventListener('input', () => {
+      if (ta.value) {
+        document.querySelectorAll('.q-option').forEach(b => b.classList.remove('selected'));
+        qState.selectedOption = null;
+      }
+    });
+  }
+})();
+
+function speakQuestion() {
+  if (!qState.speechSynth) return;
+  qState.speechSynth.cancel();
+  const q = qState.questions[qState.current];
+  const utt = new SpeechSynthesisUtterance(q.q);
+  utt.rate = 0.92;
+  utt.pitch = 1.0;
+  // Prefer a clear English voice
+  const voices = qState.speechSynth.getVoices();
+  const preferred = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('natural'))
+    || voices.find(v => v.lang === 'en-GB')
+    || voices.find(v => v.lang.startsWith('en'));
+  if (preferred) utt.voice = preferred;
+  qState.speechSynth.speak(utt);
+}
+
+function toggleVoiceInput() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert('Voice input not supported in this browser.');
+    return;
+  }
+
+  if (qState.isRecording) {
+    qState.recognition.stop();
+    qState.isRecording = false;
+    document.getElementById('q-voice-btn').textContent = '🎤';
+    return;
+  }
+
+  qState.recognition = new SpeechRecognition();
+  qState.recognition.lang = 'en-GB';
+  qState.recognition.continuous = true;
+  qState.recognition.interimResults = true;
+
+  const textarea = document.getElementById('q-answer');
+  const btn = document.getElementById('q-voice-btn');
+  const base = textarea.value;
+
+  qState.recognition.onresult = (e) => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    textarea.value = base + final + interim;
+  };
+
+  qState.recognition.onerror = () => {
+    qState.isRecording = false;
+    btn.textContent = '🎤';
+  };
+
+  qState.recognition.onend = () => {
+    qState.isRecording = false;
+    btn.textContent = '🎤';
+  };
+
+  qState.recognition.start();
+  qState.isRecording = true;
+  btn.textContent = '⏹ Stop';
+}
+
+async function submitAnswer() {
+  const answer = document.getElementById('q-answer').value.trim();
+  const q = qState.questions[qState.current];
+
+  // Path C — nothing selected
+  if (qState.selectedOption === null && !answer) {
+    alert('Please select an answer or type your own.');
+    return;
+  }
+
+  const btn = document.getElementById('q-submit-btn');
+  btn.disabled = true;
+  if (qState.speechSynth) qState.speechSynth.cancel();
+
+  // Path A — multiple choice selected
+  if (qState.selectedOption !== null) {
+    const isCorrect = qState.selectedOption === q.correctIndex;
+    const firstSentence = q.ideal ? q.ideal.split('.')[0] + '.' : '';
+    const score = isCorrect ? 100 : 0;
+    const verdict = isCorrect ? 'Correct!' : 'Not quite';
+    const feedback = isCorrect
+      ? '✦ ' + firstSentence
+      : 'Not quite. The correct answer was: ' + q.options[q.correctIndex] + '. ' + firstSentence;
+    showResult({ score, verdict, feedback, keyMissed: isCorrect ? '' : firstSentence }, q);
+    return;
+  }
+
+  // Path B — free text answer
+  btn.textContent = 'Evaluating...';
+
+  try {
+    const response = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 400,
+        system: `You are a fair and encouraging quiz examiner for a school hackathon about how ancient civilisations studied astronomy.
+Evaluate the student answer and return ONLY valid JSON (no markdown, no backticks) in this exact format:
+{"score": <0-100>, "verdict": "<Excellent|Good|Partial|Keep Learning>", "feedback": "<2-3 encouraging sentences explaining what was right and what was missed>", "keyMissed": "<brief note on main missed point, or empty string if full marks>"}
+
+Scoring guide: 80-100 = mentions most key points accurately. 50-79 = shows understanding but misses specifics. 20-49 = basic idea correct. 0-19 = incorrect or too vague.
+Be encouraging and educational. This is for 15-16 year old students.`,
+        messages: [{
+          role: 'user',
+          content: `Question about ${q.culture}: "${q.q}"
+
+Ideal answer: "${q.ideal}"
+
+Student answered: "${answer}"
+
+Evaluate and return JSON.`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content?.[0]?.text || '{}';
+    let result;
+    try { result = JSON.parse(text.replace(/```json|```/g, '').trim()); }
+    catch(e) { result = { score: 50, verdict: 'Good', feedback: 'Your answer showed understanding of the topic!', keyMissed: '' }; }
+
+    showResult(result, q);
+
+  } catch(err) {
+    // Fallback if API unavailable
+    showResult({ score: 50, verdict: 'Submitted', feedback: 'Your answer has been recorded. (AI evaluation unavailable — check your API connection)', keyMissed: '' }, q);
+  }
+}
+
+function showResult(result, q) {
+  const score = Math.max(0, Math.min(100, result.score || 0));
+  qState.scores.push(score);
+  qState.totalScore += score;
+
+  // Score badge colour
+  const badgeEl = document.getElementById('r-score-badge');
+  const color = score >= 80 ? '#4ade80' : score >= 50 ? '#e8b84b' : '#f87171';
+  badgeEl.style.borderColor = color;
+  badgeEl.style.color = color;
+  badgeEl.textContent = score;
+
+  document.getElementById('r-verdict').textContent = result.verdict || 'Submitted';
+  document.getElementById('r-feedback').textContent = result.feedback || '';
+
+  if (result.keyMissed) {
+    document.getElementById('r-ideal').style.display = 'block';
+    document.getElementById('r-ideal-text').textContent = result.keyMissed;
+  } else {
+    document.getElementById('r-ideal').style.display = 'none';
+  }
+
+  const isLast = qState.current >= qState.questions.length - 1;
+  document.getElementById('r-next-btn').textContent = isLast ? 'See Final Score' : 'Next Question →';
+
+  // Speak short feedback
+  if (qState.speechSynth) {
+    const utt = new SpeechSynthesisUtterance(`${score} points. ${result.feedback}`);
+    utt.rate = 0.95;
+    const voices = qState.speechSynth.getVoices();
+    const v = voices.find(v => v.lang.startsWith('en'));
+    if (v) utt.voice = v;
+    qState.speechSynth.speak(utt);
+  }
+
+  showScreen('result');
+}
+
+function nextQuestion() {
+  qState.current++;
+  if (qState.current < qState.questions.length) {
+    showQuestion();
+  } else {
+    showFinal();
+  }
+}
+
+function showFinal() {
+  const total = qState.totalScore;
+  const title = total >= 450 ? '✦ Master of the Ancient Sky ✦'
+    : total >= 350 ? 'Skilled Sky Reader'
+    : total >= 200 ? 'Apprentice Astronomer'
+    : 'Star Gazer';
+
+  const stars = total >= 450 ? '★★★★★'
+    : total >= 350 ? '★★★★☆'
+    : total >= 200 ? '★★★☆☆'
+    : '★★☆☆☆';
+
+  document.getElementById('f-stars').textContent = stars;
+  document.getElementById('f-score').textContent = total;
+  document.getElementById('f-title').textContent = title;
+
+  // Save to leaderboard (shared storage)
+  const entry = {
+    name: qState.playerName,
+    score: total,
+    date: new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short'})
+  };
+
+  let scores = [];
+  try {
+    const stored = localStorage.getItem('sky-leaderboard');
+    if (stored) scores = JSON.parse(stored);
+  } catch(e) {}
+
+  scores.push(entry);
+  scores.sort((a,b) => b.score - a.score);
+  scores = scores.slice(0, 20);
+
+  try { localStorage.setItem('sky-leaderboard', JSON.stringify(scores)); } catch(e) {}
+
+  // Render leaderboard
+  const myIndex = scores.findIndex(s => s.name === entry.name && s.score === entry.score);
+  let lb = '';
+  scores.slice(0, 10).forEach((s, i) => {
+    const isMe = i === myIndex;
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+    lb += `<div style="display:flex;justify-content:space-between;align-items:center;
+      padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);
+      ${isMe ? 'color:#e8b84b;' : 'color:#9a92b0;'}
+      font-family:Jost,sans-serif;font-size:0.8rem;">
+      <span>${medal} ${s.name}</span>
+      <span style="font-family:Cinzel,serif">${s.score}</span>
+    </div>`;
+  });
+  if (myIndex >= 10) {
+    lb += `<div style="padding:0.5rem 0;color:#e8b84b;font-family:Jost,sans-serif;font-size:0.8rem;text-align:center">
+      Your position: #${myIndex+1}
+    </div>`;
+  }
+  document.getElementById('f-leaderboard').innerHTML = lb || '<p style="color:#4a4460;font-size:0.8rem">Be the first on the leaderboard!</p>';
+
+  loadMainLeaderboard(); // refresh main page leaderboard
+  showScreen('final');
+}
+
+function loadMainLeaderboard() {
+  const container = document.getElementById('main-leaderboard');
+  if (!container) return;
+  let scores = [];
+  try {
+    const stored = localStorage.getItem('sky-leaderboard');
+    if (stored) scores = JSON.parse(stored);
+  } catch(e) {}
+
+  if (!scores.length) {
+    container.innerHTML = '<div class="lb-empty">No scores yet — be the first to take the quiz!</div>';
+    return;
+  }
+
+  const medals = ['🥇', '🥈', '🥉'];
+  const rankClass = ['gold', 'silver', 'bronze'];
+  let html = '';
+  scores.slice(0, 10).forEach((s, i) => {
+    const rankLabel = i < 3 ? medals[i] : `${i + 1}.`;
+    const rc = i < 3 ? rankClass[i] : '';
+    html += `<div class="lb-row">
+      <span class="lb-rank ${rc}">${rankLabel}</span>
+      <span class="lb-name">${s.name || 'Explorer'}</span>
+      <span class="lb-score">${s.score}</span>
+      <span class="lb-date">${s.date || ''}</span>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// Wire up the main button
+document.querySelector('.quiz-start-btn').onclick = openQuiz;
+loadMainLeaderboard();
+
+// ESC closes quiz
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && qState.screen !== 'intro') {
+    const overlay = document.getElementById('quiz-overlay');
+    if (overlay.style.opacity === '1') closeQuiz();
+  }
+});
+</script>
+
+</body>
+</html>
