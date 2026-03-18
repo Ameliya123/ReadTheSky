@@ -674,6 +674,19 @@ nav.scrolled{background:rgba(6,9,18,0.97);backdrop-filter:blur(12px)}
 .chat-bubble.user{background:rgba(255,255,255,0.05);border:1px solid var(--border);align-self:flex-end;color:var(--text-hi)}
 .chat-bubble.assistant{background:rgba(var(--article-accent-rgb,232,184,75),0.07);border:1px solid rgba(var(--article-accent-rgb,232,184,75),0.18);align-self:flex-start;color:rgba(240,235,224,0.9)}
 .chat-bubble.assistant .chat-search-badge{font-family:var(--ff-ui);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;opacity:0.5;display:block;margin-bottom:0.3rem}
+.chat-body p,.chat-body ul,.chat-body ol{margin:0 0 0.7rem}
+.chat-body p:last-child,.chat-body ul:last-child,.chat-body ol:last-child{margin-bottom:0}
+.chat-body strong{color:var(--text-hi);font-weight:600}
+.chat-body .chat-heading{
+  font-family:var(--ff-ui);
+  font-size:0.72rem;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--article-accent,var(--gold));
+  margin-bottom:0.45rem;
+}
+.chat-body ul,.chat-body ol{padding-left:1.2rem}
+.chat-body li{margin-bottom:0.28rem}
 .chat-input-row{display:flex;gap:0.5rem;align-items:flex-end}
 .chat-input{flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:3px;padding:0.6rem 0.9rem;font-family:var(--ff-body);font-size:0.95rem;color:var(--text-hi);resize:none;min-height:40px;max-height:100px;transition:border-color 0.2s;line-height:1.5}
 .chat-input:focus{outline:none;border-color:rgba(var(--article-accent-rgb,232,184,75),0.4)}
@@ -2385,6 +2398,80 @@ function escapeHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+function formatInlineChatMarkdown(text) {
+  return escapeHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/__(.+?)__/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+function formatAssistantMessage(text, usedSearch) {
+  const lines = text.replace(/\r\n/g, '\n').trim().split('\n');
+  const parts = [];
+  let paragraph = [];
+  let listItems = [];
+  let listType = null;
+
+  function flushParagraph() {
+    if (!paragraph.length) return;
+    parts.push(`<p>${formatInlineChatMarkdown(paragraph.join('\n'))}</p>`);
+    paragraph = [];
+  }
+
+  function flushList() {
+    if (!listItems.length || !listType) return;
+    parts.push(`<${listType}>${listItems.map(item => `<li>${formatInlineChatMarkdown(item)}</li>`).join('')}</${listType}>`);
+    listItems = [];
+    listType = null;
+  }
+
+  lines.forEach(line => {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      flushParagraph();
+      flushList();
+      return;
+    }
+
+    const headingMatch = trimmed.match(/^#{1,6}\s+(.+)$/);
+    const bulletMatch = trimmed.match(/^[-*•]\s+(.+)$/);
+    const numberedMatch = trimmed.match(/^\d+\.\s+(.+)$/);
+
+    if (headingMatch) {
+      flushParagraph();
+      flushList();
+      parts.push(`<p class="chat-heading">${formatInlineChatMarkdown(headingMatch[1])}</p>`);
+      return;
+    }
+
+    if (bulletMatch) {
+      flushParagraph();
+      if (listType && listType !== 'ul') flushList();
+      listType = 'ul';
+      listItems.push(bulletMatch[1]);
+      return;
+    }
+
+    if (numberedMatch) {
+      flushParagraph();
+      if (listType && listType !== 'ol') flushList();
+      listType = 'ol';
+      listItems.push(numberedMatch[1]);
+      return;
+    }
+
+    flushList();
+    paragraph.push(trimmed);
+  });
+
+  flushParagraph();
+  flushList();
+
+  const badge = usedSearch ? '<span class="chat-search-badge">🔍 Web search used</span>' : '';
+  const body = parts.length ? parts.join('') : `<p>${formatInlineChatMarkdown(text)}</p>`;
+  return `${badge}<div class="chat-body">${body}</div>`;
+}
+
 function renderChatMessages() {
   const container = document.getElementById('chat-messages');
   if (!container) return;
@@ -2392,8 +2479,8 @@ function renderChatMessages() {
   chatState.messages.forEach(m => {
     const div = document.createElement('div');
     div.className = 'chat-bubble ' + m.role;
-    if (m.role === 'assistant' && m.usedSearch) {
-      div.innerHTML = '<span class="chat-search-badge">🔍 Web search used</span>' + escapeHtml(m.text);
+    if (m.role === 'assistant') {
+      div.innerHTML = formatAssistantMessage(m.text, m.usedSearch);
     } else {
       div.textContent = m.text;
     }
@@ -2459,7 +2546,7 @@ async function sendChatMessage() {
   const c = CULTURES[chatState.currentCulture];
   const articleText = c.paragraphs.join('\n\n');
   const factsText = c.facts.map(f => f.n + ': ' + f.l).join(', ');
-  const systemPrompt = 'You are an enthusiastic educational guide for "How Cultures Read the Sky" — a site about ancient civilisations and astronomy. The user is reading about ' + c.label + '.\n\nAnswer questions about this civilisation and astronomy. When the question is covered by the article, answer from it directly. When the user wants to know more, use web search to find accurate additional details. Keep answers engaging and concise (2-4 sentences), appropriate for students aged 15-16.\n\nArticle content:\n' + articleText + '\n\nKey facts: ' + factsText + '\n\nDid you know: ' + c.didYouKnow + '\n\nFull knowledge base:\n' + QUIZ_CONTEXT;
+  const systemPrompt = 'You are an enthusiastic educational guide for "How Cultures Read the Sky" — a site about ancient civilisations and astronomy. The user is reading about ' + c.label + '.\n\nAnswer questions about this civilisation and astronomy. When the question is covered by the article, answer from it directly. When the user wants to know more, use web search to find accurate additional details. Keep answers engaging and concise, appropriate for students aged 15-16. Prefer 1-2 short paragraphs. Avoid markdown headings, leading # symbols, bold markers, and overly long blocky answers. Use bullet points only when they genuinely help.\n\nArticle content:\n' + articleText + '\n\nKey facts: ' + factsText + '\n\nDid you know: ' + c.didYouKnow + '\n\nFull knowledge base:\n' + QUIZ_CONTEXT;
 
   const apiMessages = chatState.messages.map(m => ({role: m.role, content: m.text}));
 
@@ -2483,7 +2570,7 @@ async function sendChatMessage() {
     const relevantBlocks = lastSearchIdx >= 0
       ? content.slice(lastSearchIdx + 1).filter(b => b.type === 'text')
       : content.filter(b => b.type === 'text');
-    const replyText = relevantBlocks.length ? relevantBlocks.map(b => b.text).join(' ').trim() : 'Sorry, I could not get an answer.';
+    const replyText = relevantBlocks.length ? relevantBlocks.map(b => b.text).join('\n\n').trim() : 'Sorry, I could not get an answer.';
     chatState.messages.push({role:'assistant', text:replyText, usedSearch});
     typing.classList.remove('visible');
     renderChatMessages();
