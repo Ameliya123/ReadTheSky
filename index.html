@@ -687,6 +687,27 @@ nav.scrolled{background:rgba(6,9,18,0.97);backdrop-filter:blur(12px)}
 }
 .chat-body ul,.chat-body ol{padding-left:1.2rem}
 .chat-body li{margin-bottom:0.28rem}
+.speech-toolbar{display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin:0 0 1rem}
+.speech-label{font-family:var(--ff-ui);font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-lo)}
+.speech-select{
+  min-width:220px;max-width:100%;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:0.45rem 0.75rem;
+  font-family:var(--ff-ui);
+  font-size:0.72rem;
+  color:var(--text-hi);
+}
+.speech-select:focus{outline:none;border-color:rgba(var(--article-accent-rgb,232,184,75),0.4)}
+.speech-select:disabled{opacity:0.65;cursor:not-allowed}
+.speech-note{
+  font-family:var(--ff-ui);
+  font-size:0.62rem;
+  letter-spacing:0.08em;
+  color:var(--text-lo);
+}
+.speech-note.warn{color:#f6c177}
 .chat-input-row{display:flex;gap:0.5rem;align-items:flex-end}
 .chat-input{flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:3px;padding:0.6rem 0.9rem;font-family:var(--ff-body);font-size:0.95rem;color:var(--text-hi);resize:none;min-height:40px;max-height:100px;transition:border-color 0.2s;line-height:1.5}
 .chat-input:focus{outline:none;border-color:rgba(var(--article-accent-rgb,232,184,75),0.4)}
@@ -1619,6 +1640,11 @@ window.addEventListener('resize', drawConnectors);
     </div>
     <div class="article-chat" id="article-chat">
       <p class="article-chat-title">Ask the Stars</p>
+      <div class="speech-toolbar">
+        <span class="speech-label">Narrator Voice</span>
+        <select class="speech-select" id="chat-tts-voice" aria-label="Choose narration voice"></select>
+        <span class="speech-note" id="chat-tts-status">Checking ElevenLabs...</span>
+      </div>
       <div class="chat-messages" id="chat-messages"></div>
       <p class="chat-typing" id="chat-typing">✦ Searching the cosmos...</p>
       <div class="chat-input-row">
@@ -1644,6 +1670,257 @@ const chatState = {
   recognition: null,
   isRecording: false,
 };
+
+const TTS_STORAGE_KEY = 'sky-elevenlabs-voice-id';
+const TTS_SELECT_IDS = ['chat-tts-voice', 'quiz-tts-voice'];
+const TTS_STATUS_IDS = ['chat-tts-status', 'quiz-tts-status'];
+
+const ttsState = {
+  audio: null,
+  audioUrl: '',
+  requestId: 0,
+  selectedVoiceId: (() => {
+    try { return localStorage.getItem(TTS_STORAGE_KEY) || ''; } catch (e) { return ''; }
+  })(),
+  defaultVoiceId: '',
+  voices: [],
+  configured: false,
+  initPromise: null,
+  statusTone: 'info',
+  statusMessage: 'Checking ElevenLabs...',
+  lastFallbackReason: 'ElevenLabs unavailable',
+};
+
+function setTtsStatus(message, tone = 'info') {
+  ttsState.statusMessage = message;
+  ttsState.statusTone = tone;
+  TTS_STATUS_IDS.forEach(id => {
+    const node = document.getElementById(id);
+    if (!node) return;
+    node.textContent = message;
+    node.classList.toggle('warn', tone === 'warn');
+  });
+}
+
+function saveSelectedTtsVoiceId(voiceId) {
+  ttsState.selectedVoiceId = voiceId || '';
+  try {
+    if (ttsState.selectedVoiceId) localStorage.setItem(TTS_STORAGE_KEY, ttsState.selectedVoiceId);
+    else localStorage.removeItem(TTS_STORAGE_KEY);
+  } catch (e) {}
+}
+
+function cleanupNarrationAudio(audio, audioUrl) {
+  if (ttsState.audio === audio) ttsState.audio = null;
+  if (ttsState.audioUrl === audioUrl) ttsState.audioUrl = '';
+  if (audioUrl) URL.revokeObjectURL(audioUrl);
+}
+
+function stopNarration() {
+  ttsState.requestId += 1;
+  if (ttsState.audio) {
+    try { ttsState.audio.pause(); } catch (e) {}
+    ttsState.audio.src = '';
+    ttsState.audio = null;
+  }
+  if (ttsState.audioUrl) {
+    URL.revokeObjectURL(ttsState.audioUrl);
+    ttsState.audioUrl = '';
+  }
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+function pickBrowserVoice(synth) {
+  if (!synth) return null;
+  const voices = synth.getVoices();
+  return voices.find(v => (v.lang || '').startsWith('en') && (v.name || '').toLowerCase().includes('natural'))
+    || voices.find(v => (v.lang || '') === 'en-GB')
+    || voices.find(v => (v.lang || '') === 'en-US')
+    || voices.find(v => (v.lang || '').startsWith('en'))
+    || null;
+}
+
+function speakWithBrowserFallback(text, { synth = window.speechSynthesis, rate = 0.92, pitch = 1.0 } = {}) {
+  if (!synth || !text) return false;
+  synth.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.rate = rate;
+  utt.pitch = pitch;
+  const voice = pickBrowserVoice(synth);
+  if (voice) utt.voice = voice;
+  synth.speak(utt);
+  return true;
+}
+
+function getResolvedTtsVoiceId() {
+  const availableIds = new Set(ttsState.voices.map(voice => voice.voiceId));
+  if (ttsState.selectedVoiceId && availableIds.has(ttsState.selectedVoiceId)) return ttsState.selectedVoiceId;
+  if (ttsState.defaultVoiceId && availableIds.has(ttsState.defaultVoiceId)) return ttsState.defaultVoiceId;
+  return '';
+}
+
+function syncTtsVoiceSelects() {
+  const resolvedVoiceId = getResolvedTtsVoiceId();
+  const defaultVoice = ttsState.voices.find(voice => voice.voiceId === ttsState.defaultVoiceId) || ttsState.voices[0] || null;
+
+  TTS_SELECT_IDS.forEach(id => {
+    const select = document.getElementById(id);
+    if (!select) return;
+    select.innerHTML = '';
+
+    const placeholder = document.createElement('option');
+    if (!ttsState.configured) {
+      placeholder.textContent = 'Browser voice fallback';
+      select.appendChild(placeholder);
+      select.disabled = true;
+      return;
+    }
+
+    if (!ttsState.voices.length) {
+      placeholder.textContent = ttsState.defaultVoiceId ? 'Configured default voice' : 'Loading ElevenLabs voices...';
+      select.appendChild(placeholder);
+      select.disabled = true;
+      return;
+    }
+
+    select.disabled = false;
+
+    const autoOption = document.createElement('option');
+    autoOption.value = '';
+    autoOption.textContent = defaultVoice ? `Auto (${defaultVoice.name})` : 'Auto';
+    select.appendChild(autoOption);
+
+    ttsState.voices.forEach(voice => {
+      const option = document.createElement('option');
+      option.value = voice.voiceId;
+      option.textContent = voice.category ? `${voice.name} - ${voice.category}` : voice.name;
+      select.appendChild(option);
+    });
+
+    select.value = resolvedVoiceId === ttsState.defaultVoiceId ? '' : resolvedVoiceId;
+  });
+}
+
+function handleTtsVoiceChange(event) {
+  saveSelectedTtsVoiceId(event.target.value);
+  syncTtsVoiceSelects();
+}
+
+async function loadTtsVoices(force = false) {
+  if (ttsState.initPromise && !force) return ttsState.initPromise;
+
+  ttsState.initPromise = (async () => {
+    try {
+      const response = await fetch('/api/tts', { headers: { 'Accept': 'application/json' } });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || `TTS setup failed (${response.status})`);
+
+      ttsState.configured = !!data.configured;
+      ttsState.voices = Array.isArray(data.voices) ? data.voices : [];
+      ttsState.defaultVoiceId = data.defaultVoiceId || '';
+
+      if (ttsState.selectedVoiceId && !ttsState.voices.some(voice => voice.voiceId === ttsState.selectedVoiceId)) {
+        saveSelectedTtsVoiceId('');
+      }
+      if (ttsState.configured) {
+        setTtsStatus('ElevenLabs ready', 'info');
+      } else {
+        const reason = data.message || data.warning || data.error || 'ElevenLabs unavailable';
+        ttsState.lastFallbackReason = reason;
+        setTtsStatus(`Using browser voice: ${reason}`, 'warn');
+      }
+    } catch (err) {
+      console.warn('Unable to load ElevenLabs voices, falling back to browser speech.', err);
+      ttsState.configured = false;
+      ttsState.voices = [];
+      ttsState.defaultVoiceId = '';
+      ttsState.lastFallbackReason = err.message;
+      setTtsStatus(`Using browser voice: ${err.message}`, 'warn');
+    }
+
+    syncTtsVoiceSelects();
+    return {
+      configured: ttsState.configured,
+      voices: ttsState.voices,
+      defaultVoiceId: ttsState.defaultVoiceId,
+    };
+  })();
+
+  return ttsState.initPromise;
+}
+
+function initializeTtsControls() {
+  TTS_SELECT_IDS.forEach(id => {
+    const select = document.getElementById(id);
+    if (!select || select.dataset.bound === 'true') return;
+    select.addEventListener('change', handleTtsVoiceChange);
+    select.dataset.bound = 'true';
+  });
+
+  setTtsStatus(ttsState.statusMessage, ttsState.statusTone);
+  syncTtsVoiceSelects();
+  loadTtsVoices();
+}
+
+async function speakText(text, { voiceId = '', fallbackSynth = window.speechSynthesis, rate = 0.92, pitch = 1.0 } = {}) {
+  if (!text) return false;
+
+  stopNarration();
+  const requestId = ttsState.requestId;
+
+  try {
+    const config = await loadTtsVoices();
+    if (requestId !== ttsState.requestId) return false;
+
+    if (config?.configured) {
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text,
+          voiceId: voiceId || getResolvedTtsVoiceId(),
+        }),
+      });
+
+      if (requestId !== ttsState.requestId) return false;
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `TTS failed (${response.status})`);
+      }
+
+      const blob = await response.blob();
+      if (requestId !== ttsState.requestId) return false;
+
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(audioUrl);
+      audio.preload = 'auto';
+      audio.onended = () => cleanupNarrationAudio(audio, audioUrl);
+      audio.onerror = () => cleanupNarrationAudio(audio, audioUrl);
+
+      ttsState.audio = audio;
+      ttsState.audioUrl = audioUrl;
+      try {
+        await audio.play();
+      } catch (err) {
+        cleanupNarrationAudio(audio, audioUrl);
+        throw err;
+      }
+      setTtsStatus('Playing with ElevenLabs', 'info');
+      ttsState.lastFallbackReason = 'ElevenLabs unavailable';
+      return true;
+    }
+  } catch (err) {
+    console.warn('ElevenLabs playback failed, using browser speech fallback.', err);
+    ttsState.lastFallbackReason = err.message;
+    setTtsStatus(`Using browser voice: ${err.message}`, 'warn');
+  }
+
+  if (requestId !== ttsState.requestId) return false;
+  const usedFallback = speakWithBrowserFallback(text, { synth: fallbackSynth, rate, pitch });
+  if (usedFallback) setTtsStatus(`Using browser voice: ${ttsState.lastFallbackReason}`, 'warn');
+  return usedFallback;
+}
 
 /* ============================================================
    CULTURE DATA
@@ -1885,7 +2162,7 @@ function openArticle(id){
   if (chatMsgs) chatMsgs.innerHTML = '';
   const chatTyping = document.getElementById('chat-typing');
   if (chatTyping) chatTyping.classList.remove('visible');
-  if (chatState.synth) chatState.synth.cancel();
+  stopNarration();
 
   const c = CULTURES[id];
   if(!c) return;
@@ -1935,7 +2212,7 @@ function closeArticle(){
   document.getElementById('article-overlay').classList.remove('open');
   document.body.style.overflow = '';
   if(currentVizAnim){ cancelAnimationFrame(currentVizAnim); currentVizAnim=null; }
-  if (chatState.synth) chatState.synth.cancel();
+  stopNarration();
   if (chatState.recognition) { try { chatState.recognition.stop(); } catch(e){} }
 }
 
@@ -2405,8 +2682,22 @@ function formatInlineChatMarkdown(text) {
     .replace(/\n/g, '<br>');
 }
 
+function normalizeAssistantReplyText(text) {
+  return text
+    .replace(/\r\n/g, '\n')
+    // Repair punctuation the model occasionally places on its own line.
+    .replace(/\n+\s*([,.;:!?])\s*\n+/g, '$1 ')
+    .replace(/\n+\s*([,.;:!?])(?=\s|$)/g, '$1')
+    // Join fragments that were split mid-sentence.
+    .replace(/([,:;])\s*\n+/g, '$1 ')
+    .replace(/([^\n.!?])\s*\n+(?=[a-z(])/g, '$1 ')
+    // Preserve paragraph breaks without letting them multiply.
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function formatAssistantMessage(text, usedSearch) {
-  const lines = text.replace(/\r\n/g, '\n').trim().split('\n');
+  const lines = normalizeAssistantReplyText(text).split('\n');
   const parts = [];
   let paragraph = [];
   let listItems = [];
@@ -2490,16 +2781,7 @@ function renderChatMessages() {
 }
 
 function speakChatResponse(text) {
-  if (!chatState.synth) return;
-  chatState.synth.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.rate = 0.92; utt.pitch = 1.0;
-  const voices = chatState.synth.getVoices();
-  const v = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('natural'))
-    || voices.find(v => v.lang === 'en-GB')
-    || voices.find(v => v.lang.startsWith('en'));
-  if (v) utt.voice = v;
-  chatState.synth.speak(utt);
+  speakText(text, { fallbackSynth: chatState.synth, rate: 0.92, pitch: 1.0 });
 }
 
 function toggleChatVoice() {
@@ -2546,7 +2828,7 @@ async function sendChatMessage() {
   const c = CULTURES[chatState.currentCulture];
   const articleText = c.paragraphs.join('\n\n');
   const factsText = c.facts.map(f => f.n + ': ' + f.l).join(', ');
-  const systemPrompt = 'You are an enthusiastic educational guide for "How Cultures Read the Sky" — a site about ancient civilisations and astronomy. The user is reading about ' + c.label + '.\n\nAnswer questions about this civilisation and astronomy. When the question is covered by the article, answer from it directly. When the user wants to know more, use web search to find accurate additional details. Keep answers engaging and concise, appropriate for students aged 15-16. Prefer 1-2 short paragraphs. Avoid markdown headings, leading # symbols, bold markers, and overly long blocky answers. Use bullet points only when they genuinely help.\n\nArticle content:\n' + articleText + '\n\nKey facts: ' + factsText + '\n\nDid you know: ' + c.didYouKnow + '\n\nFull knowledge base:\n' + QUIZ_CONTEXT;
+  const systemPrompt = 'You are an enthusiastic educational guide for "How Cultures Read the Sky" — a site about ancient civilisations and astronomy. The user is reading about ' + c.label + '.\n\nAnswer questions about this civilisation and astronomy. When the question is covered by the article, answer from it directly. When the user wants to know more, use web search to find accurate additional details. Keep answers engaging and concise, appropriate for students aged 15-16. Prefer 1-2 short paragraphs. Avoid markdown headings, leading # symbols, bold markers, and overly long blocky answers. Use bullet points only when they genuinely help. Never put punctuation on its own line. If the user asks for one sentence, answer in exactly one sentence.\n\nArticle content:\n' + articleText + '\n\nKey facts: ' + factsText + '\n\nDid you know: ' + c.didYouKnow + '\n\nFull knowledge base:\n' + QUIZ_CONTEXT;
 
   const apiMessages = chatState.messages.map(m => ({role: m.role, content: m.text}));
 
@@ -2570,7 +2852,7 @@ async function sendChatMessage() {
     const relevantBlocks = lastSearchIdx >= 0
       ? content.slice(lastSearchIdx + 1).filter(b => b.type === 'text')
       : content.filter(b => b.type === 'text');
-    const replyText = relevantBlocks.length ? relevantBlocks.map(b => b.text).join('\n\n').trim() : 'Sorry, I could not get an answer.';
+    const replyText = normalizeAssistantReplyText(relevantBlocks.length ? relevantBlocks.map(b => b.text).join('\n\n').trim() : 'Sorry, I could not get an answer.');
     chatState.messages.push({role:'assistant', text:replyText, usedSearch});
     typing.classList.remove('visible');
     renderChatMessages();
@@ -2664,6 +2946,11 @@ async function sendChatMessage() {
       </div>
       <div id="q-culture-tag" style="font-family:'Jost',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.75rem;opacity:0.8"></div>
       <div id="q-text" style="font-family:'Crimson Text',serif;font-size:1.3rem;color:#f0ebe0;line-height:1.5;margin-bottom:2rem;min-height:3rem"></div>
+      <div class="speech-toolbar" style="margin-bottom:1.1rem">
+        <span class="speech-label">Narrator Voice</span>
+        <select class="speech-select" id="quiz-tts-voice" aria-label="Choose quiz narration voice"></select>
+        <span class="speech-note" id="quiz-tts-status">Checking ElevenLabs...</span>
+      </div>
 
       <!-- TTS play button -->
       <button id="q-tts-btn" onclick="speakQuestion()" style="
@@ -2837,7 +3124,7 @@ function closeQuiz() {
   overlay.style.opacity = '0';
   overlay.style.pointerEvents = 'none';
   document.body.style.overflow = '';
-  if (qState.speechSynth) qState.speechSynth.cancel();
+  stopNarration();
   if (qState.recognition) { try { qState.recognition.stop(); } catch(e){} }
 }
 
@@ -2959,19 +3246,9 @@ function selectOption(index, btnEl) {
 })();
 
 function speakQuestion() {
-  if (!qState.speechSynth) return;
-  qState.speechSynth.cancel();
   const q = qState.questions[qState.current];
-  const utt = new SpeechSynthesisUtterance(q.q);
-  utt.rate = 0.92;
-  utt.pitch = 1.0;
-  // Prefer a clear English voice
-  const voices = qState.speechSynth.getVoices();
-  const preferred = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('natural'))
-    || voices.find(v => v.lang === 'en-GB')
-    || voices.find(v => v.lang.startsWith('en'));
-  if (preferred) utt.voice = preferred;
-  qState.speechSynth.speak(utt);
+  if (!q) return;
+  speakText(q.q, { fallbackSynth: qState.speechSynth, rate: 0.92, pitch: 1.0 });
 }
 
 function toggleVoiceInput() {
@@ -3033,7 +3310,7 @@ async function submitAnswer() {
 
   const btn = document.getElementById('q-submit-btn');
   btn.disabled = true;
-  if (qState.speechSynth) qState.speechSynth.cancel();
+  stopNarration();
 
   // Path A — multiple choice selected
   if (qState.selectedOption !== null) {
@@ -3117,14 +3394,7 @@ function showResult(result, q) {
   document.getElementById('r-next-btn').textContent = isLast ? 'See Final Score' : 'Next Question →';
 
   // Speak short feedback
-  if (qState.speechSynth) {
-    const utt = new SpeechSynthesisUtterance(`${score} points. ${result.feedback}`);
-    utt.rate = 0.95;
-    const voices = qState.speechSynth.getVoices();
-    const v = voices.find(v => v.lang.startsWith('en'));
-    if (v) utt.voice = v;
-    qState.speechSynth.speak(utt);
-  }
+  speakText(`${score} points. ${result.feedback}`, { fallbackSynth: qState.speechSynth, rate: 0.95, pitch: 1.0 });
 
   showScreen('result');
 }
@@ -3230,6 +3500,7 @@ function loadMainLeaderboard() {
 
 // Wire up the main button
 document.querySelector('.quiz-start-btn').onclick = openQuiz;
+initializeTtsControls();
 loadMainLeaderboard();
 
 // ESC closes quiz

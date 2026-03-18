@@ -1,0 +1,7 @@
+ANTHROPIC_API_KEY=your_anthropic_key_here
+ELEVENLABS_API_KEY=your_elevenlabs_key_here
+ELEVENLABS_VOICE_ID=your_elevenlabs_voice_id_here
+ELEVENLABS_MODEL_ID=eleven_multilingual_v2
+ELEVENLABS_STABILITY=0.45
+ELEVENLABS_SIMILARITY_BOOST=0.8
+ELEVENLABS_USE_SPEAKER_BOOST=true
